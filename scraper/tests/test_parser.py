@@ -86,14 +86,14 @@ STORE_LIST_HTML = """
 <html lang="ja">
 <body>
 <div class="storelist">
-  <article class="storecard">
-    <a class="storecard-link" href="https://shop.saitama-tsunagu.com/store/store-a/">
-      <h3 class="storecard-name">店舗A</h3>
+  <article class="result-box">
+    <a class="result-box-block" href="https://shop.saitama-tsunagu.com/store/store-a/">
+      <h3>店舗A</h3>
     </a>
   </article>
-  <article class="storecard">
-    <a class="storecard-link" href="https://shop.saitama-tsunagu.com/store/store-b/">
-      <h3 class="storecard-name">店舗B</h3>
+  <article class="result-box">
+    <a class="result-box-block" href="https://shop.saitama-tsunagu.com/store/store-b/">
+      <h3>店舗B</h3>
     </a>
   </article>
 </div>

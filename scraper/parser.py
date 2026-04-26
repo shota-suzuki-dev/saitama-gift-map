@@ -34,7 +34,7 @@ def parse_store_list_page(html: str) -> list[str]:
     """Extract store detail URLs from a list page HTML string."""
     soup = BeautifulSoup(html, "html.parser")
     urls = []
-    for a in soup.find_all("a", class_="storecard-link"):
+    for a in soup.find_all("a", class_="result-box-block"):
         href = a.get("href", "")
         if href:
             urls.append(href)
