@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>さいたま市商品券対応店舗マップ</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css" />
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: sans-serif; display: flex; flex-direction: column; height: 100dvh; }
+    header {
+      padding: 8px 12px;
+      background: #1a6e3c;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    header h1 { font-size: 1rem; white-space: nowrap; }
+    .controls { display: flex; gap: 6px; flex-wrap: wrap; flex: 1; }
+    .controls input, .controls select {
+      padding: 4px 8px;
+      font-size: 0.85rem;
+      border: none;
+      border-radius: 4px;
+      min-width: 120px;
+    }
+    #count { font-size: 0.85rem; white-space: nowrap; }
+    #map { flex: 1; }
+    .popup-name { font-weight: bold; margin-bottom: 4px; }
+    .popup-addr, .popup-tel { font-size: 0.85rem; color: #444; }
+    .popup-link { font-size: 0.8rem; }
+    .popup-services { font-size: 0.75rem; color: #777; margin-top: 4px; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>さいたま市商品券対応店舗マップ</h1>
+    <div class="controls">
+      <input id="search" type="search" placeholder="店舗名で検索">
+      <select id="filter-area"><option value="">全区</option></select>
+      <select id="filter-category"><option value="">全業種</option></select>
+    </div>
+    <span id="count">読み込み中...</span>
+  </header>
+  <div id="map"></div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
+  <script>
+    const map = L.map('map').setView([35.861, 139.645], 12);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+      maxZoom: 19,
+    }).addTo(map);
+
+    const clusterGroup = L.markerClusterGroup({ chunkedLoading: true });
+    map.addLayer(clusterGroup);
+
+    let allStores = [];
+
+    function addressToArea(address) {
+      const m = address.match(/さいたま市(\S+区)/);
+      return m ? m[1] : '';
+    }
+
+    function buildPopup(s) {
+      return `
+        <div class="popup-name">${s.name}</div>
+        <div class="popup-addr">${s.address}</div>
+        ${s.phone ? `<div class="popup-tel">TEL: ${s.phone}</div>` : ''}
+        <div class="popup-services">${s.services.join(' / ')}</div>
+        <a class="popup-link" href="${s.url}" target="_blank" rel="noopener">詳細ページ</a>
+      `;
+    }
+
+    function renderMarkers(stores) {
+      clusterGroup.clearLayers();
+      stores.forEach(s => {
+        if (s.lat == null) return;
+        const marker = L.marker([s.lat, s.lng]);
+        marker.bindPopup(buildPopup(s));
+        clusterGroup.addLayer(marker);
+      });
+      document.getElementById('count').textContent = `${stores.filter(s => s.lat != null).length} 件表示`;
+    }
+
+    function applyFilters() {
+      const q = document.getElementById('search').value.trim().toLowerCase();
+      const area = document.getElementById('filter-area').value;
+      const cat = document.getElementById('filter-category').value;
+      const filtered = allStores.filter(s => {
+        if (q && !s.name.toLowerCase().includes(q)) return false;
+        if (area && addressToArea(s.address) !== area) return false;
+        if (cat && s.category !== cat) return false;
+        return true;
+      });
+      renderMarkers(filtered);
+    }
+
+    fetch('stores.json')
+      .then(r => r.json())
+      .then(stores => {
+        allStores = stores;
+
+        const areas = [...new Set(stores.map(s => addressToArea(s.address)).filter(Boolean))].sort();
+        const areaEl = document.getElementById('filter-area');
+        areas.forEach(a => { const o = document.createElement('option'); o.value = a; o.textContent = a; areaEl.appendChild(o); });
+
+        const cats = [...new Set(stores.map(s => s.category).filter(Boolean))].sort();
+        const catEl = document.getElementById('filter-category');
+        cats.forEach(c => { const o = document.createElement('option'); o.value = c; o.textContent = c; catEl.appendChild(o); });
+
+        renderMarkers(stores);
+      })
+      .catch(err => {
+        document.getElementById('count').textContent = 'データ読み込みエラー';
+        console.error(err);
+      });
+
+    document.getElementById('search').addEventListener('input', applyFilters);
+    document.getElementById('filter-area').addEventListener('change', applyFilters);
+    document.getElementById('filter-category').addEventListener('change', applyFilters);
+  </script>
+</body>
+</html>
