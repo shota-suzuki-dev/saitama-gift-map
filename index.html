@@ -4,56 +4,1087 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>さいたま市商品券対応店舗マップ</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css" />
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: sans-serif; display: flex; flex-direction: column; height: 100dvh; }
-    header {
-      padding: 8px 12px;
-      background: #1a6e3c;
-      color: #fff;
+    /* --- Design Tokens (DESIGN.md / Airbnb) --- */
+    :root {
+      --color-primary:        #00963d;
+      --color-primary-active: #007a31;
+      --color-ink:            #222222;
+      --color-body:           #3f3f3f;
+      --color-muted:          #6a6a6a;
+      --color-muted-soft:     #929292;
+      --color-hairline:       #dddddd;
+      --color-hairline-soft:  #ebebeb;
+      --color-canvas:         #ffffff;
+      --color-surface-soft:   #f7f7f7;
+      --color-surface-strong: #f2f2f2;
+      --rounded-sm:   8px;
+      --rounded-md:   14px;
+      --rounded-full: 9999px;
+      --shadow-card:
+        rgba(0,0,0,0.02) 0 0 0 1px,
+        rgba(0,0,0,0.04) 0 2px 6px 0,
+        rgba(0,0,0,0.10) 0 4px 8px 0;
+      --font-stack: 'Inter', 'Noto Sans JP', -apple-system, system-ui, sans-serif;
+    }
+
+    /* --- Reset --- */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    /* --- Base --- */
+    body {
+      font-family: var(--font-stack);
+      color: var(--color-ink);
+      background: var(--color-canvas);
+      display: flex;
+      flex-direction: column;
+      height: 100dvh;
+    }
+
+    /* --- Top Nav (DESIGN.md: top-nav — canvas bg, 80px, hairline bottom) --- */
+    .top-nav {
+      height: 80px;
+      background: var(--color-canvas);
+      background: var(--color-primary);
+      border-bottom: none;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+      flex-shrink: 0;
+      z-index: 1000;
+    }
+
+    /* display-sm: 20px / 600 / -0.18px — wordmark role */
+    .wordmark {
+      font-size: 20px;
+      font-weight: 600;
+      line-height: 1.20;
+      letter-spacing: -0.18px;
+      color: #ffffff;
+      white-space: nowrap;
+    }
+
+    /* caption-sm: 13px / 400 / muted */
+    .count-badge {
+      font-size: 13px;
+      font-weight: 400;
+      line-height: 1.23;
+      color: rgba(255,255,255,0.80);
+      white-space: nowrap;
+    }
+
+    /* --- Search Bar Section --- */
+    .search-section {
+      background: var(--color-canvas);
+      border-bottom: 1px solid var(--color-hairline-soft);
+      padding: 12px 24px;
+      flex-shrink: 0;
+      display: flex;
+      justify-content: center;
+    }
+
+    /* search-bar-pill: full-radius pill, 64px, card shadow */
+    .search-pill {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr 1fr 64px;
+      width: 100%;
+      max-width: 720px;
+      height: 64px;
+      background: var(--color-canvas);
+      border: 1px solid var(--color-hairline);
+      border-radius: var(--rounded-full);
+      box-shadow: var(--shadow-card);
+      transition: box-shadow 0.15s ease;
+    }
+
+    .search-pill:focus-within {
+      box-shadow:
+        rgba(0,0,0,0.04) 0 0 0 2px,
+        rgba(0,0,0,0.06) 0 4px 12px 0,
+        rgba(0,0,0,0.12) 0 8px 16px 0;
+    }
+
+    /* search-field-segment: vertical hairline dividers */
+    .search-segment {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 8px 20px;
+      border-right: 1px solid var(--color-hairline);
+    }
+
+    .search-segment:last-of-type {
+      border-right: none;
+    }
+
+    /* caption: 14px / 500 (segment label) */
+    .search-segment label {
+      font-size: 11px;
+      font-weight: 600;
+      line-height: 1.18;
+      color: var(--color-ink);
+      pointer-events: none;
+      margin-bottom: 2px;
+    }
+
+    /* body-sm: 14px / 400 inside segments */
+    .search-segment input,
+    .search-segment select {
+      background: transparent;
+      border: none;
+      outline: none;
+      font-family: var(--font-stack);
+      font-size: 14px;
+      font-weight: 400;
+      color: var(--color-ink);
+      line-height: 1.43;
+      width: 100%;
+    }
+
+    .search-segment input::placeholder {
+      color: var(--color-muted);
+    }
+
+    .search-segment select {
+      appearance: none;
+      -webkit-appearance: none;
+      cursor: pointer;
+    }
+
+    /* --- Category custom dropdown --- */
+    .cat-btn {
+      background: transparent;
+      border: none;
+      outline: none;
+      font-family: var(--font-stack);
+      font-size: 14px;
+      font-weight: 400;
+      color: var(--color-ink);
+      line-height: 1.43;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      padding: 0;
+      text-align: left;
+    }
+
+    .cat-btn-icon {
+      width: 20px;
+      height: 20px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .cat-btn-icon svg { width: 16px; height: 16px; }
+
+    .cat-btn-text {
+      flex: 1;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .cat-btn-chevron {
+      width: 14px;
+      height: 14px;
+      flex-shrink: 0;
+      color: var(--color-muted);
+      transition: transform 0.15s ease;
+    }
+
+    .cat-btn[aria-expanded="true"] .cat-btn-chevron {
+      transform: rotate(180deg);
+    }
+
+    .cat-dropdown {
+      position: absolute;
+      top: calc(100% + 6px);
+      left: -20px;
+      min-width: 220px;
+      background: var(--color-canvas);
+      border: 1px solid var(--color-hairline);
+      border-radius: var(--rounded-md);
+      box-shadow: var(--shadow-card);
+      max-height: 320px;
+      overflow-y: auto;
+      z-index: 2000;
+    }
+
+    .cat-item {
       display: flex;
       align-items: center;
       gap: 10px;
-      flex-wrap: wrap;
+      padding: 10px 16px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 400;
+      color: var(--color-ink);
+      border-radius: 0;
     }
-    header h1 { font-size: 1rem; white-space: nowrap; }
-    .controls { display: flex; gap: 6px; flex-wrap: wrap; flex: 1; }
-    .controls input, .controls select {
-      padding: 4px 8px;
-      font-size: 0.85rem;
+
+    .cat-item:first-child { border-radius: var(--rounded-md) var(--rounded-md) 0 0; }
+    .cat-item:last-child  { border-radius: 0 0 var(--rounded-md) var(--rounded-md); }
+
+    .cat-item:hover { background: var(--color-surface-soft); }
+
+    .cat-item.active {
+      font-weight: 600;
+      background: var(--color-surface-soft);
+    }
+
+    .cat-item-icon {
+      width: 28px;
+      height: 28px;
+      flex-shrink: 0;
+      border-radius: var(--rounded-full);
+      border: 1.5px solid transparent;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .cat-item-icon svg { width: 14px; height: 14px; color: #ffffff; }
+
+    /* --- Origin (基準位置) dropdown --- */
+    .origin-btn {
+      background: transparent;
       border: none;
-      border-radius: 4px;
-      min-width: 120px;
+      outline: none;
+      font-family: var(--font-stack);
+      font-size: 14px;
+      font-weight: 400;
+      color: var(--color-ink);
+      line-height: 1.43;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      padding: 0;
+      text-align: left;
     }
-    #count { font-size: 0.85rem; white-space: nowrap; }
-    #map { flex: 1; }
-    .popup-name { font-weight: bold; margin-bottom: 4px; }
-    .popup-addr, .popup-tel { font-size: 0.85rem; color: #444; }
-    .popup-link { font-size: 0.8rem; }
-    .popup-services { font-size: 0.75rem; color: #777; margin-top: 4px; }
+
+    .origin-btn-icon {
+      width: 20px;
+      height: 20px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .origin-btn-icon svg { width: 16px; height: 16px; }
+
+    .origin-btn-text {
+      flex: 1;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .origin-btn-chevron {
+      width: 14px;
+      height: 14px;
+      flex-shrink: 0;
+      color: var(--color-muted);
+      transition: transform 0.15s ease;
+    }
+
+    .origin-btn[aria-expanded="true"] .origin-btn-chevron {
+      transform: rotate(180deg);
+    }
+
+    .origin-dropdown {
+      position: absolute;
+      top: calc(100% + 6px);
+      left: -20px;
+      min-width: 260px;
+      background: var(--color-canvas);
+      border: 1px solid var(--color-hairline);
+      border-radius: var(--rounded-md);
+      box-shadow: var(--shadow-card);
+      max-height: 360px;
+      overflow-y: auto;
+      z-index: 2000;
+    }
+
+    .origin-search-wrap {
+      padding: 10px 12px 6px;
+      border-bottom: 1px solid var(--color-hairline-soft);
+    }
+
+    .origin-search {
+      width: 100%;
+      background: var(--color-surface-soft);
+      border: none;
+      outline: none;
+      font-family: var(--font-stack);
+      font-size: 13px;
+      font-weight: 400;
+      color: var(--color-ink);
+      padding: 6px 10px;
+      border-radius: var(--rounded-sm);
+    }
+
+    .origin-search::placeholder { color: var(--color-muted); }
+
+    .origin-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 16px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 400;
+      color: var(--color-ink);
+    }
+
+    .origin-item:hover { background: var(--color-surface-soft); }
+
+    .origin-item.active { font-weight: 600; background: var(--color-surface-soft); }
+
+    .origin-item-icon {
+      width: 28px;
+      height: 28px;
+      flex-shrink: 0;
+      border-radius: var(--rounded-full);
+      background: var(--color-surface-strong);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .origin-item-icon svg { width: 14px; height: 14px; color: var(--color-ink); }
+
+    .origin-item-icon.current { background: #1d7cbd; }
+    .origin-item-icon.current svg { color: #ffffff; }
+    .origin-item-icon.clear { background: var(--color-surface-strong); }
+
+    .origin-divider {
+      height: 1px;
+      background: var(--color-hairline-soft);
+      margin: 2px 0;
+    }
+
+    .origin-station-list { padding-bottom: 4px; }
+
+    /* --- Radius bar (search-section 直下スライドイン) --- */
+    .radius-bar {
+      background: var(--color-canvas);
+      border-bottom: 1px solid var(--color-hairline-soft);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-shrink: 0;
+      overflow: hidden;
+      max-height: 0;
+      padding: 0 24px;
+      opacity: 0;
+      transition: max-height 0.22s ease, opacity 0.18s ease, padding 0.22s ease;
+    }
+
+    .radius-bar.visible {
+      max-height: 52px;
+      padding: 8px 24px;
+      opacity: 1;
+    }
+
+    .radius-bar-origin {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--color-ink);
+      white-space: nowrap;
+    }
+
+    .radius-bar-arrow {
+      font-size: 12px;
+      color: var(--color-muted);
+    }
+
+    .radius-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--color-muted);
+      white-space: nowrap;
+    }
+
+    .radius-chip {
+      background: var(--color-surface-soft);
+      border: 1px solid var(--color-hairline);
+      border-radius: var(--rounded-full);
+      font-family: var(--font-stack);
+      font-size: 12px;
+      font-weight: 400;
+      color: var(--color-ink);
+      padding: 4px 12px;
+      cursor: pointer;
+      transition: background 0.12s ease, color 0.12s ease, border-color 0.12s ease;
+      white-space: nowrap;
+    }
+
+    .radius-chip:hover { background: var(--color-surface-strong); }
+
+    .radius-chip.active {
+      background: var(--color-primary);
+      border-color: var(--color-primary);
+      color: #ffffff;
+      font-weight: 600;
+    }
+
+    /* --- 駅ピン --- */
+    .station-pin-wrap { background: transparent !important; border: none !important; }
+    .station-pin {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .station-pin-dot {
+      width: 46px;
+      height: 46px;
+      border-radius: 50%;
+      background: #00963d;
+      border: 3px solid #ffffff;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.32);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #ffffff;
+    }
+    .station-pin-dot svg { width: 22px; height: 22px; }
+    .station-pin-label {
+      font-family: 'Inter', 'Noto Sans JP', sans-serif;
+      font-size: 11px;
+      font-weight: 700;
+      color: #222222;
+      background: #ffffff;
+      border: 1px solid #dddddd;
+      border-radius: 5px;
+      padding: 2px 7px;
+      margin-top: 4px;
+      white-space: nowrap;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.15);
+    }
+
+    /* --- 現在位置マーカー --- */
+    .current-pos-dot {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: #1d7cbd;
+      border: 2px solid #ffffff;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.35);
+    }
+
+    /* search-orb: 48×48 Rausch circle */
+    .search-orb {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 8px;
+    }
+
+    .search-orb-inner {
+      width: 48px;
+      height: 48px;
+      border-radius: var(--rounded-full);
+      background: var(--color-primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .search-orb-inner svg {
+      width: 18px;
+      height: 18px;
+      color: #ffffff;
+    }
+
+    /* --- Map --- */
+    #map { flex: 1; z-index: 1; }
+
+    /* --- Leaflet Popup → property-card aesthetic --- */
+    .leaflet-popup-content-wrapper {
+      border-radius: var(--rounded-md) !important;
+      box-shadow: var(--shadow-card) !important;
+      padding: 0 !important;
+      font-family: var(--font-stack) !important;
+    }
+
+    .leaflet-popup-content {
+      margin: 0 !important;
+      font-family: var(--font-stack) !important;
+    }
+
+    .popup-body {
+      padding: 28px 22px 24px;
+    }
+
+    .leaflet-popup-tip-container { margin-top: -1px; }
+
+    .popup-name {
+      font-size: 15px;
+      font-weight: 600;
+      line-height: 1.25;
+      color: var(--color-ink);
+      margin-bottom: 12px;
+    }
+
+    .popup-meta {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .popup-zip {
+      font-size: 11px;
+      font-weight: 400;
+      color: var(--color-muted-soft);
+    }
+
+    .popup-addr {
+      font-size: 13px;
+      font-weight: 400;
+      line-height: 1.35;
+      color: var(--color-body);
+    }
+
+    .popup-tel {
+      font-size: 13px;
+      font-weight: 400;
+      line-height: 1.35;
+    }
+
+    .popup-tel a {
+      color: var(--color-body);
+      text-decoration: none;
+    }
+    .popup-tel a:hover { color: var(--color-primary); text-decoration: underline; }
+
+    .popup-service-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px solid var(--color-hairline-soft);
+    }
+
+    .popup-service-tag {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--color-ink);
+      background: var(--color-surface-soft);
+      border: 1px solid var(--color-hairline-soft);
+      border-radius: var(--rounded-full);
+      padding: 3px 10px;
+      line-height: 1.4;
+      white-space: nowrap;
+    }
+
+    .popup-link {
+      display: inline-block;
+      margin-top: 18px;
+      padding: 10px 20px;
+      background: var(--color-primary);
+      color: #ffffff !important;
+      font-family: var(--font-stack);
+      font-size: 13px;
+      font-weight: 600;
+      line-height: 1.29;
+      text-decoration: none !important;
+      border-radius: var(--rounded-full);
+      transition: background 0.15s ease;
+    }
+
+    .popup-link:hover { background: var(--color-primary-active); }
+
+    .leaflet-control-attribution {
+      font-family: var(--font-stack) !important;
+      font-size: 11px !important;
+      color: var(--color-muted-soft) !important;
+    }
+
+    /* --- MarkerCluster → Saitama green tint --- */
+    .marker-cluster-small       { background-color: rgba(0, 150, 61, 0.20); }
+    .marker-cluster-small  div  { background-color: rgba(0, 150, 61, 0.80); }
+    .marker-cluster-medium      { background-color: rgba(0, 150, 61, 0.30); }
+    .marker-cluster-medium div  { background-color: rgba(0, 122, 49, 0.85); }
+    .marker-cluster-large       { background-color: rgba(0, 150, 61, 0.40); }
+    .marker-cluster-large  div  { background-color: rgba(0, 122, 49, 0.95); }
+    .marker-cluster div {
+      color: #ffffff;
+      font-family: var(--font-stack);
+      font-weight: 600;
+    }
+
+    /* --- Store Pin (category icons) --- */
+    .store-pin-wrap { background: transparent !important; border: none !important; }
+    .store-pin {
+      width: 40px;
+      height: 40px;
+      border-radius: var(--rounded-full);
+      background: var(--color-primary);
+      border: 2px solid transparent;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #ffffff;
+      transition: transform 0.12s ease, box-shadow 0.12s ease;
+    }
+    .store-pin svg { width: 20px; height: 20px; }
+    .store-pin:hover {
+      transform: translateY(-2px);
+      box-shadow:
+        rgba(0,0,0,0.04) 0 0 0 1px,
+        rgba(0,0,0,0.08) 0 4px 10px 0,
+        rgba(0,0,0,0.14) 0 8px 16px 0;
+    }
+
+    /* --- Focus Ring --- */
+    :focus-visible { outline: 2px solid var(--color-ink); outline-offset: 2px; }
+
+    /* --- Mobile (< 744px) --- */
+    @media (max-width: 743px) {
+      .top-nav { height: 60px; padding: 0 16px; }
+      .wordmark { font-size: 16px; }
+      .search-section { padding: 8px 12px; }
+      .search-pill {
+        grid-template-columns: 1fr 56px;
+        grid-template-rows: auto auto auto auto;
+        height: auto;
+        border-radius: var(--rounded-md);
+      }
+      .search-segment {
+        grid-column: 1;
+        border-right: none;
+        border-bottom: 1px solid var(--color-hairline);
+        padding: 10px 16px;
+      }
+      .search-segment:last-of-type { border-bottom: none; }
+      .search-orb {
+        grid-column: 2;
+        grid-row: 1 / span 4;
+        padding: 0 4px 0 0;
+      }
+    }
   </style>
 </head>
 <body>
-  <header>
-    <h1>さいたま市商品券対応店舗マップ</h1>
-    <div class="controls">
-      <input id="search" type="search" placeholder="店舗名で検索">
-      <select id="filter-area"><option value="">全区</option></select>
-      <select id="filter-category"><option value="">全業種</option></select>
-    </div>
-    <span id="count">読み込み中...</span>
+  <header class="top-nav">
+    <h1 class="wordmark">さいたま市商品券マップ</h1>
+    <span id="count" class="count-badge">読み込み中...</span>
   </header>
+
+  <section class="search-section" role="search">
+    <div class="search-pill">
+      <div class="search-segment">
+        <label for="search">店舗名</label>
+        <input id="search" type="search" placeholder="店舗名で検索">
+      </div>
+      <div class="search-segment">
+        <label for="filter-area">区</label>
+        <select id="filter-area"><option value="">全区</option></select>
+      </div>
+      <div class="search-segment" id="origin-segment">
+        <label>基準位置</label>
+        <button class="origin-btn" id="origin-btn" type="button" aria-haspopup="listbox" aria-expanded="false">
+          <span class="origin-btn-icon" id="origin-btn-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></svg>
+          </span>
+          <span class="origin-btn-text" id="origin-btn-text">基準なし</span>
+          <svg class="origin-btn-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+        </button>
+        <div class="origin-dropdown" id="origin-dropdown" hidden>
+          <div class="origin-search-wrap">
+            <input type="search" class="origin-search" id="origin-search" placeholder="駅名・路線で検索">
+          </div>
+          <div class="origin-item" id="origin-current-btn">
+            <span class="origin-item-icon current">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v3m0 14v3M2 12h3m14 0h3"/></svg>
+            </span>
+            現在位置を使う
+          </div>
+          <div class="origin-item" id="origin-clear-btn">
+            <span class="origin-item-icon clear">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </span>
+            基準なし（クリア）
+          </div>
+          <div class="origin-divider"></div>
+          <div class="origin-station-list" id="origin-station-list"></div>
+        </div>
+      </div>
+      <div class="search-segment" id="cat-segment">
+        <label>業種</label>
+        <button class="cat-btn" id="cat-btn" type="button" aria-haspopup="listbox" aria-expanded="false">
+          <span class="cat-btn-icon" id="cat-btn-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="14" y="14" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/></svg>
+          </span>
+          <span class="cat-btn-text" id="cat-btn-text">全業種</span>
+          <svg class="cat-btn-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+        </button>
+        <div class="cat-dropdown" id="cat-dropdown" hidden></div>
+      </div>
+      <div class="search-orb" aria-hidden="true">
+        <div class="search-orb-inner">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="7"/>
+            <line x1="16.5" y1="16.5" x2="22" y2="22"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="radius-bar" id="radius-bar" aria-hidden="true">
+    <span class="radius-bar-origin" id="radius-bar-origin"></span>
+    <span class="radius-bar-arrow">→</span>
+    <span class="radius-label">半径</span>
+    <button class="radius-chip active" data-radius="0">全て</button>
+    <button class="radius-chip" data-radius="500">500m</button>
+    <button class="radius-chip" data-radius="1000">1km</button>
+    <button class="radius-chip" data-radius="2000">2km</button>
+    <button class="radius-chip" data-radius="5000">5km</button>
+  </div>
+
   <div id="map"></div>
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
   <script>
+    // --- Category colors per bucket ---
+    const BUCKET_COLORS = {
+      food:    '#e8531a',  // オレンジ（飲食）
+      drink:   '#9b2335',  // ワインレッド（居酒屋）
+      grocery: '#d97706',  // アンバー（食料品）
+      drug:    '#0891b2',  // シアン（薬局）
+      beauty:  '#db2777',  // ピンク（美容）
+      relax:   '#7c3aed',  // パープル（リラク）
+      medical: '#dc2626',  // レッド（医療）
+      car:     '#1d4ed8',  // ブルー（自動車）
+      leisure: '#0d9488',  // ティール（レジャー）
+      retail:  '#ca8a04',  // ゴールド（専門小売）
+      service: '#475569',  // スレート（サービス）
+      other:   '#6b7280',  // グレー（その他）
+    };
+
+    // --- Category icon data (Lucide MIT) ---
+    const ALL_ICON =`<rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="14" y="14" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/>`;
+
+    const ICON_PATHS = {
+      food:    `<path d="m16 2-2.3 2.3a3 3 0 0 0 0 4.2l1.8 1.8a3 3 0 0 0 4.2 0L22 8"/><path d="M15 15 3.3 3.3a4.2 4.2 0 0 0 0 6l7.3 7.3c.7.7 2 .7 2.8 0L15 15Zm0 0 7 7"/><path d="m2.1 21.8 6.4-6.3"/><path d="m19 5-7 7"/>`,
+      drink:   `<path d="M8 22h8"/><path d="M7 10h10"/><path d="M12 15v7"/><path d="M12 15a5 5 0 0 0 5-5c0-2-.5-4-2-8H9c-1.5 4-2 6-2 8a5 5 0 0 0 5 5Z"/>`,
+      grocery: `<circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/>`,
+      drug:    `<path d="m10.5 20.5 10-10a4.95 4.95 0 1 0-7-7l-10 10a4.95 4.95 0 1 0 7 7Z"/><path d="m8.5 8.5 7 7"/>`,
+      beauty:  `<circle cx="6" cy="6" r="3"/><path d="M8.12 8.12 12 12"/><path d="M20 4 8.12 15.88"/><circle cx="6" cy="18" r="3"/><path d="M14.8 14.8 20 20"/>`,
+      relax:   `<path d="M11.017 2.814a1 1 0 0 1 1.966 0l1.051 5.558a2 2 0 0 0 1.594 1.594l5.558 1.051a1 1 0 0 1 0 1.966l-5.558 1.051a2 2 0 0 0-1.594 1.594l-1.051 5.558a1 1 0 0 1-1.966 0l-1.051-5.558a2 2 0 0 0-1.594-1.594l-5.558-1.051a1 1 0 0 1 0-1.966l5.558-1.051a2 2 0 0 0 1.594-1.594z"/><path d="M20 2v4"/><path d="M22 4h-4"/><circle cx="4" cy="20" r="2"/>`,
+      medical: `<path d="M11 2v2"/><path d="M5 2v2"/><path d="M5 3H4a2 2 0 0 0-2 2v4a6 6 0 0 0 12 0V5a2 2 0 0 0-2-2h-1"/><path d="M8 15a6 6 0 0 0 12 0v-3"/><circle cx="20" cy="10" r="2"/>`,
+      car:     `<path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2"/><circle cx="7" cy="17" r="2"/><path d="M9 17h6"/><circle cx="17" cy="17" r="2"/>`,
+      leisure: `<path d="M2 20v-8a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v8"/><path d="M4 10V6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v4"/><path d="M12 4v6"/><path d="M2 18h20"/>`,
+      retail:  `<path d="M16 10a4 4 0 0 1-8 0"/><path d="M3.103 6.034h17.794"/><path d="M3.4 5.467a2 2 0 0 0-.4 1.2V20a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6.667a2 2 0 0 0-.4-1.2l-2-2.667A2 2 0 0 0 17 2H7a2 2 0 0 0-1.6.8z"/>`,
+      service: `<path d="M16 20V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/><rect width="20" height="14" x="2" y="6" rx="2"/>`,
+      other:   `<path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/>`,
+    };
+
+    const CATEGORY_TO_BUCKET = {
+      'カフェ・飲食店': 'food', 'ファストフード': 'food',
+      '居酒屋・Bar': 'drink', '酒類販売': 'drink',
+      '食料品・日用品': 'grocery', '百貨店・スーパー・ホームセンター': 'grocery', 'コンビニエンスストア': 'grocery',
+      'ドラッグストア': 'drug', '調剤薬局': 'drug',
+      '美容院・理容院': 'beauty', 'まつ毛エクステ・ネイル': 'beauty',
+      'エステ': 'relax', '整体・整骨院・鍼灸院・リラクゼーション': 'relax',
+      '病院・診療所': 'medical', '歯科医院': 'medical', '動物病院': 'medical',
+      '自動車バイク自転車販売・整備': 'car', 'タクシー・運転代行・旅客運送業': 'car', 'ガソリンスタンド': 'car', '自動車学校': 'car',
+      'レジャー施設': 'leisure', '宿泊施設': 'leisure', '旅行代理店': 'leisure',
+      '眼鏡・コンタクト販売': 'retail', '化粧品販売': 'retail', '文具・書籍販売': 'retail',
+      '家電販売店': 'retail', '家具・インテリア': 'retail', 'スポーツ用品販売': 'retail',
+      '宝飾販売': 'retail', 'ペット用品': 'retail', '仏具販売': 'retail',
+      '携帯電話電話販売': 'retail', 'パソコン・OA機器販売': 'retail', '写真館': 'retail',
+      'クリーニング業': 'service', '行政機関': 'service', '不動産業': 'service',
+      '冠婚葬祭': 'service', 'デジタルコンテンツ': 'service',
+    };
+
+    function makeSvg(paths, size = '20px') {
+      return `<svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${paths}</svg>`;
+    }
+
+    // --- 基準位置・半径フィルタ状態 ---
+    let origin = null;          // {type:'station'|'current', lat, lng, label}
+    let radiusM = 0;            // 0 = 制限なし
+    let originCircle = null;    // L.circle
+    let currentPosMarker = null;
+    let stationMarker = null;
+    let allStations = [];
+
+    // --- Category custom dropdown ---
+    let selectedCategory = '';
+
+    function buildCategoryDropdown(categories) {
+      const btn = document.getElementById('cat-btn');
+      const dropdown = document.getElementById('cat-dropdown');
+
+      function renderDropdown() {
+        dropdown.innerHTML = '';
+        // "全業種" item
+        const allItem = document.createElement('div');
+        allItem.className = 'cat-item' + (selectedCategory === '' ? ' active' : '');
+        allItem.setAttribute('role', 'option');
+        allItem.innerHTML = `
+          <div class="cat-item-icon">${makeSvg(ALL_ICON, '14px')}</div>
+          <span>全業種</span>`;
+        allItem.addEventListener('click', () => selectCategory('', '全業種', ALL_ICON));
+        dropdown.appendChild(allItem);
+
+        categories.forEach(cat => {
+          const bucket = CATEGORY_TO_BUCKET[cat] || 'other';
+          const color = BUCKET_COLORS[bucket];
+          const item = document.createElement('div');
+          item.className = 'cat-item' + (selectedCategory === cat ? ' active' : '');
+          item.setAttribute('role', 'option');
+          item.innerHTML = `
+            <div class="cat-item-icon" style="background:${color};border-color:${color};">${makeSvg(ICON_PATHS[bucket], '14px')}</div>
+            <span>${cat}</span>`;
+          item.addEventListener('click', () => selectCategory(cat, cat, ICON_PATHS[bucket]));
+          dropdown.appendChild(item);
+        });
+      }
+
+      function selectCategory(value, label, iconPaths) {
+        selectedCategory = value;
+        document.getElementById('cat-btn-text').textContent = label;
+        document.getElementById('cat-btn-icon').innerHTML = makeSvg(iconPaths, '16px');
+        closeDropdown();
+        applyFilters();
+      }
+
+      function openDropdown() {
+        renderDropdown();
+        dropdown.hidden = false;
+        btn.setAttribute('aria-expanded', 'true');
+      }
+
+      function closeDropdown() {
+        dropdown.hidden = true;
+        btn.setAttribute('aria-expanded', 'false');
+      }
+
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        dropdown.hidden ? openDropdown() : closeDropdown();
+      });
+
+      document.addEventListener('click', () => closeDropdown());
+      dropdown.addEventListener('click', (e) => e.stopPropagation());
+    }
+
+    // --- 駅ピンアイコン ---
+    function makeStationMarkerIcon(name) {
+      const html = `<div class="station-pin">
+        <div class="station-pin-dot">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M8 3.1V7a4 4 0 0 0 8 0V3.1"/>
+            <path d="m9 15-1-1"/>
+            <path d="m15 15 1-1"/>
+            <path d="M9 19c-2.8 0-5-2.2-5-5v-4a8 8 0 0 1 16 0v4c0 2.8-2.2 5-5 5Z"/>
+            <path d="m8 19-2 3"/>
+            <path d="m16 19 2 3"/>
+          </svg>
+        </div>
+        <div class="station-pin-label">${name}</div>
+      </div>`;
+      return L.divIcon({
+        className: 'station-pin-wrap',
+        html,
+        iconSize:   [80, 70],
+        iconAnchor: [40, 49],
+        popupAnchor:[0, -52]
+      });
+    }
+
+    // --- Origin circle ---
+    function updateOriginCircle() {
+      if (originCircle) { map.removeLayer(originCircle); originCircle = null; }
+      if (origin && radiusM > 0) {
+        originCircle = L.circle([origin.lat, origin.lng], {
+          radius: radiusM,
+          color: '#00963d', weight: 1.5,
+          fillColor: '#00963d', fillOpacity: 0.07,
+          interactive: false
+        }).addTo(map);
+      }
+    }
+
+    // --- Set / clear origin ---
+    function setOrigin(o) {
+      if (currentPosMarker) { map.removeLayer(currentPosMarker); currentPosMarker = null; }
+      if (stationMarker)    { map.removeLayer(stationMarker);    stationMarker = null; }
+      origin = o;
+      const text      = document.getElementById('origin-btn-text');
+      const icon      = document.getElementById('origin-btn-icon');
+      const radiusBar = document.getElementById('radius-bar');
+      const barLabel  = document.getElementById('radius-bar-origin');
+
+      if (!o) {
+        text.textContent = '基準なし';
+        icon.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></svg>`;
+        icon.style.color = 'var(--color-muted)';
+        radiusM = 0;
+        radiusBar.classList.remove('visible');
+        document.querySelectorAll('.radius-chip').forEach(c => {
+          c.classList.toggle('active', c.dataset.radius === '0');
+        });
+      } else {
+        text.textContent = o.label;
+        barLabel.textContent = o.type === 'current' ? '📍 現在位置から' : `🚉 ${o.label}から`;
+        if (o.type === 'current') {
+          icon.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v3m0 14v3M2 12h3m14 0h3"/></svg>`;
+          icon.style.color = '#1d7cbd';
+          currentPosMarker = L.marker([o.lat, o.lng], {
+            icon: L.divIcon({ className: '', html: '<div class="current-pos-dot"></div>', iconSize: [14,14], iconAnchor: [7,7] }),
+            zIndexOffset: 1000,
+            interactive: false
+          }).addTo(map);
+        } else {
+          icon.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></svg>`;
+          icon.style.color = 'var(--color-primary)';
+          stationMarker = L.marker([o.lat, o.lng], {
+            icon: makeStationMarkerIcon(o.label),
+            zIndexOffset: 1000,
+            interactive: false
+          }).addTo(map);
+        }
+        radiusBar.classList.add('visible');
+        map.flyTo([o.lat, o.lng], 14, { duration: 0.8 });
+      }
+      closeOriginDropdown();
+      applyFilters();
+    }
+
+    // --- Geolocation ---
+    function acquireCurrentPosition() {
+      if (!navigator.geolocation) {
+        showCountMsg('位置情報はこのブラウザで使用できません');
+        return;
+      }
+      document.getElementById('count').textContent = '現在位置を取得中...';
+      navigator.geolocation.getCurrentPosition(
+        pos => {
+          setOrigin({
+            type: 'current',
+            lat: pos.coords.latitude,
+            lng: pos.coords.longitude,
+            label: '現在位置'
+          });
+        },
+        () => showCountMsg('位置取得不可（許可をご確認ください）', 3000),
+        { enableHighAccuracy: true, timeout: 8000, maximumAge: 60000 }
+      );
+    }
+
+    function showCountMsg(msg, ms) {
+      const el = document.getElementById('count');
+      const prev = el.textContent;
+      el.textContent = msg;
+      if (ms) setTimeout(() => { applyFilters(); }, ms);
+    }
+
+    // --- Origin dropdown ---
+    function buildOriginDropdown(stations) {
+      const btn      = document.getElementById('origin-btn');
+      const dropdown = document.getElementById('origin-dropdown');
+      const searchEl = document.getElementById('origin-search');
+      const listEl   = document.getElementById('origin-station-list');
+
+      function renderStations(q) {
+        const filtered = q
+          ? stations.filter(s => s.name.includes(q) || s.line.includes(q))
+          : stations;
+        listEl.innerHTML = '';
+        filtered.forEach(s => {
+          const item = document.createElement('div');
+          item.className = 'origin-item' + (origin && origin.label === s.name && origin.type === 'station' ? ' active' : '');
+          item.innerHTML = `
+            <span class="origin-item-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></svg>
+            </span>
+            <span>
+              <span style="font-size:14px">${s.name}</span><br>
+              <span style="font-size:11px;color:var(--color-muted)">${s.line}</span>
+            </span>`;
+          item.addEventListener('click', () => {
+            setOrigin({ type: 'station', lat: s.lat, lng: s.lng, label: s.name });
+          });
+          listEl.appendChild(item);
+        });
+      }
+
+      function openOriginDropdown() {
+        searchEl.value = '';
+        renderStations('');
+        dropdown.hidden = false;
+        btn.setAttribute('aria-expanded', 'true');
+        setTimeout(() => searchEl.focus(), 50);
+      }
+
+      window.closeOriginDropdown = function() {
+        dropdown.hidden = true;
+        btn.setAttribute('aria-expanded', 'false');
+      };
+
+      btn.addEventListener('click', e => {
+        e.stopPropagation();
+        dropdown.hidden ? openOriginDropdown() : closeOriginDropdown();
+      });
+
+      searchEl.addEventListener('input', () => renderStations(searchEl.value.trim()));
+      searchEl.addEventListener('click', e => e.stopPropagation());
+
+      document.getElementById('origin-current-btn').addEventListener('click', () => acquireCurrentPosition());
+      document.getElementById('origin-clear-btn').addEventListener('click', () => setOrigin(null));
+
+      document.addEventListener('click', () => closeOriginDropdown());
+      dropdown.addEventListener('click', e => e.stopPropagation());
+
+      document.querySelectorAll('.radius-chip').forEach(chip => {
+        chip.addEventListener('click', () => {
+          radiusM = parseInt(chip.dataset.radius, 10);
+          document.querySelectorAll('.radius-chip').forEach(c => c.classList.remove('active'));
+          chip.classList.add('active');
+          closeOriginDropdown();
+          applyFilters();
+        });
+      });
+
+      renderStations('');
+    }
+
+    function makeStorePinIcon(category) {
+      const bucket = CATEGORY_TO_BUCKET[category] || 'other';
+      const color = BUCKET_COLORS[bucket];
+      const html = `<div class="store-pin" style="background:${color};border-color:${color};">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${ICON_PATHS[bucket]}</svg>
+      </div>`;
+      return L.divIcon({ className: 'store-pin-wrap', html, iconSize: [40, 40], iconAnchor: [20, 20], popupAnchor: [0, -22] });
+    }
+
     const map = L.map('map').setView([35.861, 139.645], 12);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+      attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors © <a href="https://carto.com/attributions">CARTO</a>',
+      subdomains: 'abcd',
       maxZoom: 19,
     }).addTo(map);
 
@@ -68,12 +1099,23 @@
     }
 
     function buildPopup(s) {
+      const zipMatch = s.address.match(/〒?\d{3}[\-‐]?\d{4}/);
+      const zipRaw   = zipMatch ? zipMatch[0].replace(/[^\d]/g, '') : '';
+      const zipStr   = zipRaw.length === 7 ? `〒${zipRaw.slice(0,3)}-${zipRaw.slice(3)}` : '';
+      const addrStr  = s.address.replace(/〒?\d{3}[\-‐]?\d{4}[\s　]*/, '');
+      const tags     = s.services.map(t => `<span class="popup-service-tag">${t}</span>`).join('');
+      const telFmt   = s.phone ? s.phone.replace(/(\d{2,4})(\d{2,4})(\d{4})$/, '$1-$2-$3') : '';
       return `
-        <div class="popup-name">${s.name}</div>
-        <div class="popup-addr">${s.address}</div>
-        ${s.phone ? `<div class="popup-tel">TEL: ${s.phone}</div>` : ''}
-        <div class="popup-services">${s.services.join(' / ')}</div>
-        <a class="popup-link" href="${s.url}" target="_blank" rel="noopener">詳細ページ</a>
+        <div class="popup-body">
+          <div class="popup-name">${s.name}</div>
+          <div class="popup-meta">
+            ${zipStr ? `<div class="popup-zip">${zipStr}</div>` : ''}
+            <div class="popup-addr">${addrStr}</div>
+            ${telFmt ? `<div class="popup-tel"><a href="tel:${s.phone}">TEL: ${telFmt}</a></div>` : ''}
+          </div>
+          <div class="popup-service-tags">${tags}</div>
+          <a class="popup-link" href="${s.url}" target="_blank" rel="noopener">詳細ページ</a>
+        </div>
       `;
     }
 
@@ -81,8 +1123,8 @@
       clusterGroup.clearLayers();
       stores.forEach(s => {
         if (s.lat == null) return;
-        const marker = L.marker([s.lat, s.lng]);
-        marker.bindPopup(buildPopup(s));
+        const marker = L.marker([s.lat, s.lng], { icon: makeStorePinIcon(s.category) });
+        marker.bindPopup(buildPopup(s), { maxWidth: 280, minWidth: 220 });
         clusterGroup.addLayer(marker);
       });
       document.getElementById('count').textContent = `${stores.filter(s => s.lat != null).length} 件表示`;
@@ -91,28 +1133,35 @@
     function applyFilters() {
       const q = document.getElementById('search').value.trim().toLowerCase();
       const area = document.getElementById('filter-area').value;
-      const cat = document.getElementById('filter-category').value;
+      const cat = selectedCategory;
       const filtered = allStores.filter(s => {
         if (q && !s.name.toLowerCase().includes(q)) return false;
         if (area && addressToArea(s.address) !== area) return false;
         if (cat && s.category !== cat) return false;
+        if (origin && radiusM > 0 && s.lat != null) {
+          const d = map.distance([s.lat, s.lng], [origin.lat, origin.lng]);
+          if (d > radiusM) return false;
+        }
         return true;
       });
       renderMarkers(filtered);
+      updateOriginCircle();
     }
 
-    fetch('stores.json')
-      .then(r => r.json())
-      .then(stores => {
+    Promise.all([
+      fetch('stores.json').then(r => r.json()),
+      fetch('stations.json').then(r => r.json()).catch(() => [])
+    ]).then(([stores, stations]) => {
         allStores = stores;
+        allStations = stations;
 
         const areas = [...new Set(stores.map(s => addressToArea(s.address)).filter(Boolean))].sort();
         const areaEl = document.getElementById('filter-area');
         areas.forEach(a => { const o = document.createElement('option'); o.value = a; o.textContent = a; areaEl.appendChild(o); });
 
         const cats = [...new Set(stores.map(s => s.category).filter(Boolean))].sort();
-        const catEl = document.getElementById('filter-category');
-        cats.forEach(c => { const o = document.createElement('option'); o.value = c; o.textContent = c; catEl.appendChild(o); });
+        buildCategoryDropdown(cats);
+        buildOriginDropdown(stations);
 
         renderMarkers(stores);
       })
@@ -123,7 +1172,6 @@
 
     document.getElementById('search').addEventListener('input', applyFilters);
     document.getElementById('filter-area').addEventListener('change', applyFilters);
-    document.getElementById('filter-category').addEventListener('change', applyFilters);
   </script>
 </body>
 </html>

@@ -1,7 +1,30 @@
 {
   "permissions": {
     "allow": [
-      "WebFetch(domain:shop.saitama-tsunagu.com)"
+      "WebFetch(domain:shop.saitama-tsunagu.com)",
+      "Bash(git init *)",
+      "Bash(uv add *)",
+      "Bash(git add *)",
+      "Bash(git commit *)",
+      "Bash(uv run *)",
+      "Bash(curl -s http://localhost:8765/stores.json)",
+      "Bash(python -c \"import json,sys; d=json.load\\(sys.stdin\\); print\\(f'stores: {len\\(d\\)}, geocoded: {sum\\(1 for s in d if s[\\\\\"lat\\\\\"]\\)}'\\)\")",
+      "Bash(curl -s http://localhost:8765/)",
+      "Bash(pkill -f \"http.server 8765\")",
+      "Bash(echo \"PID: $!\")",
+      "Bash(python -c \"import json; d=json.load\\(open\\('stores.json',encoding='utf-8'\\)\\); print\\(f'stores.json: {len\\(d\\)}件'\\)\")",
+      "Bash(echo \"PID=$!\" sleep 5 cat scraper_log.txt)",
+      "Bash(python -c \"import json; d=json.load\\(open\\('stores.json',encoding='utf-8'\\)\\); print\\(f'{len\\(d\\)} stores'\\)\")",
+      "Bash(tasklist)",
+      "Bash(python -c \"import json; d=json.load\\(open\\('stores.json',encoding='utf-8'\\)\\); print\\(len\\(d\\)\\)\")",
+      "Bash(git -C /c/Users/shota/Documents/project/saitama_gift_map log --oneline)",
+      "Bash(python -c \"import json; data=json.load\\(open\\('stores.json',encoding='utf-8'\\)\\); cats={}; [cats.update\\({s.get\\('category',''\\):cats.get\\(s.get\\('category',''\\),0\\)+1}\\) for s in data]; [print\\(f'{c}: {n}'\\) for c,n in sorted\\(cats.items\\(\\), key=lambda x:-x[1]\\)]\")",
+      "Bash(python -c \"import json,sys,io; sys.stdout=io.TextIOWrapper\\(sys.stdout.buffer,encoding='utf-8'\\); data=json.load\\(open\\('stores.json',encoding='utf-8'\\)\\); cats={}; [cats.update\\({s.get\\('category',''\\):cats.get\\(s.get\\('category',''\\),0\\)+1}\\) for s in data]; [print\\(f'{c}: {n}'\\) for c,n in sorted\\(cats.items\\(\\), key=lambda x:-x[1]\\)]\")",
+      "Bash(python -c ' *)",
+      "WebSearch",
+      "WebFetch(domain:uedayou.net)",
+      "WebFetch(domain:ekidata.jp)",
+      "Bash(grep -E \"\\\\.\\(html|css|js\\)$\")"
     ]
   }
 }
