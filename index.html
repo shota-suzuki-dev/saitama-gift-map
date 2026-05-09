@@ -1207,8 +1207,9 @@
     }
 
     const map = L.map('map').setView([35.861, 139.645], 12);
-    L.tileLayer('https://tile.openstreetmap.jp/styles/osm-bright/512/{z}/{x}/{y}.png', {
+    L.tileLayer('https://{s}.tile.openstreetmap.jp/{z}/{x}/{y}.png', {
       attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+      subdomains: 'abc',
       maxZoom: 19,
     }).addTo(map);
 
