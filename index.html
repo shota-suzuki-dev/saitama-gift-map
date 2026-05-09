@@ -11,7 +11,6 @@
   <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css" />
   <style>
-    /* --- Design Tokens (DESIGN.md / Airbnb) --- */
     :root {
       --color-primary:        #00963d;
       --color-primary-active: #007a31;
@@ -34,10 +33,8 @@
       --font-stack: 'Inter', 'Noto Sans JP', -apple-system, system-ui, sans-serif;
     }
 
-    /* --- Reset --- */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-    /* --- Base --- */
     body {
       font-family: var(--font-stack);
       color: var(--color-ink);
@@ -47,10 +44,8 @@
       height: 100dvh;
     }
 
-    /* --- Top Nav (DESIGN.md: top-nav — canvas bg, 80px, hairline bottom) --- */
     .top-nav {
       height: 80px;
-      background: var(--color-canvas);
       background: var(--color-primary);
       border-bottom: none;
       display: flex;
@@ -61,7 +56,6 @@
       z-index: 1000;
     }
 
-    /* display-sm: 20px / 600 / -0.18px — wordmark role */
     .wordmark {
       font-size: 20px;
       font-weight: 600;
@@ -71,7 +65,6 @@
       white-space: nowrap;
     }
 
-    /* caption-sm: 13px / 400 / muted */
     .count-badge {
       font-size: 13px;
       font-weight: 400;
@@ -80,7 +73,6 @@
       white-space: nowrap;
     }
 
-    /* --- Search Bar Section --- */
     .search-section {
       background: var(--color-canvas);
       border-bottom: 1px solid var(--color-hairline-soft);
@@ -90,7 +82,6 @@
       justify-content: center;
     }
 
-    /* search-bar-pill: full-radius pill, 64px, card shadow */
     .search-pill {
       display: grid;
       grid-template-columns: 1fr 1fr 1fr 1fr 64px;
@@ -111,7 +102,6 @@
         rgba(0,0,0,0.12) 0 8px 16px 0;
     }
 
-    /* search-field-segment: vertical hairline dividers */
     .search-segment {
       position: relative;
       display: flex;
@@ -121,11 +111,8 @@
       border-right: 1px solid var(--color-hairline);
     }
 
-    .search-segment:last-of-type {
-      border-right: none;
-    }
+    .search-segment:last-of-type { border-right: none; }
 
-    /* caption: 14px / 500 (segment label) */
     .search-segment label {
       font-size: 11px;
       font-weight: 600;
@@ -135,7 +122,6 @@
       margin-bottom: 2px;
     }
 
-    /* body-sm: 14px / 400 inside segments */
     .search-segment input,
     .search-segment select {
       background: transparent;
@@ -149,9 +135,7 @@
       width: 100%;
     }
 
-    .search-segment input::placeholder {
-      color: var(--color-muted);
-    }
+    .search-segment input::placeholder { color: var(--color-muted); }
 
     .search-segment select {
       appearance: none;
@@ -159,7 +143,6 @@
       cursor: pointer;
     }
 
-    /* --- Category custom dropdown --- */
     .cat-btn {
       background: transparent;
       border: none;
@@ -178,35 +161,11 @@
       text-align: left;
     }
 
-    .cat-btn-icon {
-      width: 20px;
-      height: 20px;
-      flex-shrink: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
+    .cat-btn-icon { width: 20px; height: 20px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
     .cat-btn-icon svg { width: 16px; height: 16px; }
-
-    .cat-btn-text {
-      flex: 1;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .cat-btn-chevron {
-      width: 14px;
-      height: 14px;
-      flex-shrink: 0;
-      color: var(--color-muted);
-      transition: transform 0.15s ease;
-    }
-
-    .cat-btn[aria-expanded="true"] .cat-btn-chevron {
-      transform: rotate(180deg);
-    }
+    .cat-btn-text { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .cat-btn-chevron { width: 14px; height: 14px; flex-shrink: 0; color: var(--color-muted); transition: transform 0.15s ease; }
+    .cat-btn[aria-expanded="true"] .cat-btn-chevron { transform: rotate(180deg); }
 
     .cat-dropdown {
       position: absolute;
@@ -231,18 +190,12 @@
       font-size: 14px;
       font-weight: 400;
       color: var(--color-ink);
-      border-radius: 0;
     }
 
     .cat-item:first-child { border-radius: var(--rounded-md) var(--rounded-md) 0 0; }
     .cat-item:last-child  { border-radius: 0 0 var(--rounded-md) var(--rounded-md); }
-
     .cat-item:hover { background: var(--color-surface-soft); }
-
-    .cat-item.active {
-      font-weight: 600;
-      background: var(--color-surface-soft);
-    }
+    .cat-item.active { font-weight: 600; background: var(--color-surface-soft); }
 
     .cat-item-icon {
       width: 28px;
@@ -254,10 +207,8 @@
       align-items: center;
       justify-content: center;
     }
-
     .cat-item-icon svg { width: 14px; height: 14px; color: #ffffff; }
 
-    /* --- Origin (基準位置) dropdown --- */
     .origin-btn {
       background: transparent;
       border: none;
@@ -276,35 +227,11 @@
       text-align: left;
     }
 
-    .origin-btn-icon {
-      width: 20px;
-      height: 20px;
-      flex-shrink: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
+    .origin-btn-icon { width: 20px; height: 20px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
     .origin-btn-icon svg { width: 16px; height: 16px; }
-
-    .origin-btn-text {
-      flex: 1;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .origin-btn-chevron {
-      width: 14px;
-      height: 14px;
-      flex-shrink: 0;
-      color: var(--color-muted);
-      transition: transform 0.15s ease;
-    }
-
-    .origin-btn[aria-expanded="true"] .origin-btn-chevron {
-      transform: rotate(180deg);
-    }
+    .origin-btn-text { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .origin-btn-chevron { width: 14px; height: 14px; flex-shrink: 0; color: var(--color-muted); transition: transform 0.15s ease; }
+    .origin-btn[aria-expanded="true"] .origin-btn-chevron { transform: rotate(180deg); }
 
     .origin-dropdown {
       position: absolute;
@@ -337,7 +264,6 @@
       padding: 6px 10px;
       border-radius: var(--rounded-sm);
     }
-
     .origin-search::placeholder { color: var(--color-muted); }
 
     .origin-item {
@@ -350,9 +276,7 @@
       font-weight: 400;
       color: var(--color-ink);
     }
-
     .origin-item:hover { background: var(--color-surface-soft); }
-
     .origin-item.active { font-weight: 600; background: var(--color-surface-soft); }
 
     .origin-item-icon {
@@ -365,22 +289,12 @@
       align-items: center;
       justify-content: center;
     }
-
     .origin-item-icon svg { width: 14px; height: 14px; color: var(--color-ink); }
-
     .origin-item-icon.current { background: #1d7cbd; }
     .origin-item-icon.current svg { color: #ffffff; }
-    .origin-item-icon.clear { background: var(--color-surface-strong); }
-
-    .origin-divider {
-      height: 1px;
-      background: var(--color-hairline-soft);
-      margin: 2px 0;
-    }
-
+    .origin-divider { height: 1px; background: var(--color-hairline-soft); margin: 2px 0; }
     .origin-station-list { padding-bottom: 4px; }
 
-    /* --- Radius bar (search-section 直下スライドイン) --- */
     .radius-bar {
       background: var(--color-canvas);
       border-bottom: 1px solid var(--color-hairline-soft);
@@ -401,24 +315,9 @@
       opacity: 1;
     }
 
-    .radius-bar-origin {
-      font-size: 13px;
-      font-weight: 600;
-      color: var(--color-ink);
-      white-space: nowrap;
-    }
-
-    .radius-bar-arrow {
-      font-size: 12px;
-      color: var(--color-muted);
-    }
-
-    .radius-label {
-      font-size: 11px;
-      font-weight: 600;
-      color: var(--color-muted);
-      white-space: nowrap;
-    }
+    .radius-bar-origin { font-size: 13px; font-weight: 600; color: var(--color-ink); white-space: nowrap; }
+    .radius-bar-arrow { font-size: 12px; color: var(--color-muted); }
+    .radius-label { font-size: 11px; font-weight: 600; color: var(--color-muted); white-space: nowrap; }
 
     .radius-chip {
       background: var(--color-surface-soft);
@@ -433,9 +332,7 @@
       transition: background 0.12s ease, color 0.12s ease, border-color 0.12s ease;
       white-space: nowrap;
     }
-
     .radius-chip:hover { background: var(--color-surface-strong); }
-
     .radius-chip.active {
       background: var(--color-primary);
       border-color: var(--color-primary);
@@ -443,172 +340,76 @@
       font-weight: 600;
     }
 
-    /* --- 駅ピン --- */
     .station-pin-wrap { background: transparent !important; border: none !important; }
-    .station-pin {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
+    .station-pin { display: flex; flex-direction: column; align-items: center; }
     .station-pin-dot {
-      width: 46px;
-      height: 46px;
-      border-radius: 50%;
-      background: #00963d;
-      border: 3px solid #ffffff;
+      width: 46px; height: 46px; border-radius: 50%;
+      background: #00963d; border: 3px solid #ffffff;
       box-shadow: 0 3px 10px rgba(0,0,0,0.32);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: #ffffff;
+      display: flex; align-items: center; justify-content: center; color: #ffffff;
     }
     .station-pin-dot svg { width: 22px; height: 22px; }
     .station-pin-label {
       font-family: 'Inter', 'Noto Sans JP', sans-serif;
-      font-size: 11px;
-      font-weight: 700;
-      color: #222222;
-      background: #ffffff;
-      border: 1px solid #dddddd;
-      border-radius: 5px;
-      padding: 2px 7px;
-      margin-top: 4px;
-      white-space: nowrap;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.15);
+      font-size: 11px; font-weight: 700; color: #222222;
+      background: #ffffff; border: 1px solid #dddddd;
+      border-radius: 5px; padding: 2px 7px; margin-top: 4px;
+      white-space: nowrap; box-shadow: 0 1px 4px rgba(0,0,0,0.15);
     }
 
-    /* --- 現在位置マーカー --- */
     .current-pos-dot {
-      width: 14px;
-      height: 14px;
-      border-radius: 50%;
-      background: #1d7cbd;
-      border: 2px solid #ffffff;
+      width: 14px; height: 14px; border-radius: 50%;
+      background: #1d7cbd; border: 2px solid #ffffff;
       box-shadow: 0 1px 4px rgba(0,0,0,0.35);
     }
 
-    /* search-orb: 48×48 Rausch circle */
-    .search-orb {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 8px;
-    }
-
+    .search-orb { display: flex; align-items: center; justify-content: center; padding: 8px; }
     .search-orb-inner {
-      width: 48px;
-      height: 48px;
-      border-radius: var(--rounded-full);
+      width: 48px; height: 48px; border-radius: var(--rounded-full);
       background: var(--color-primary);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .search-orb-inner svg { width: 18px; height: 18px; color: #ffffff; }
+
+    /* --- Map Wrap --- */
+    .map-wrap {
+      position: relative;
+      flex: 1;
+      overflow: hidden;
+      z-index: 1;
     }
 
-    .search-orb-inner svg {
-      width: 18px;
-      height: 18px;
-      color: #ffffff;
-    }
+    #map { width: 100%; height: 100%; }
 
-    /* --- Map --- */
-    #map { flex: 1; z-index: 1; }
-
-    /* --- Leaflet Popup → property-card aesthetic --- */
     .leaflet-popup-content-wrapper {
       border-radius: var(--rounded-md) !important;
       box-shadow: var(--shadow-card) !important;
       padding: 0 !important;
       font-family: var(--font-stack) !important;
     }
-
-    .leaflet-popup-content {
-      margin: 0 !important;
-      font-family: var(--font-stack) !important;
-    }
-
-    .popup-body {
-      padding: 28px 22px 24px;
-    }
-
+    .leaflet-popup-content { margin: 0 !important; font-family: var(--font-stack) !important; }
+    .popup-body { padding: 28px 22px 24px; }
     .leaflet-popup-tip-container { margin-top: -1px; }
-
-    .popup-name {
-      font-size: 15px;
-      font-weight: 600;
-      line-height: 1.25;
-      color: var(--color-ink);
-      margin-bottom: 12px;
-    }
-
-    .popup-meta {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
-
-    .popup-zip {
-      font-size: 11px;
-      font-weight: 400;
-      color: var(--color-muted-soft);
-    }
-
-    .popup-addr {
-      font-size: 13px;
-      font-weight: 400;
-      line-height: 1.35;
-      color: var(--color-body);
-    }
-
-    .popup-tel {
-      font-size: 13px;
-      font-weight: 400;
-      line-height: 1.35;
-    }
-
-    .popup-tel a {
-      color: var(--color-body);
-      text-decoration: none;
-    }
+    .popup-name { font-size: 15px; font-weight: 600; line-height: 1.25; color: var(--color-ink); margin-bottom: 12px; }
+    .popup-meta { display: flex; flex-direction: column; gap: 6px; }
+    .popup-zip { font-size: 11px; font-weight: 400; color: var(--color-muted-soft); }
+    .popup-addr { font-size: 13px; font-weight: 400; line-height: 1.35; color: var(--color-body); }
+    .popup-tel { font-size: 13px; font-weight: 400; line-height: 1.35; }
+    .popup-tel a { color: var(--color-body); text-decoration: none; }
     .popup-tel a:hover { color: var(--color-primary); text-decoration: underline; }
-
-    .popup-service-tags {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-      margin-top: 16px;
-      padding-top: 16px;
-      border-top: 1px solid var(--color-hairline-soft);
-    }
-
+    .popup-service-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--color-hairline-soft); }
     .popup-service-tag {
-      font-size: 12px;
-      font-weight: 500;
-      color: var(--color-ink);
-      background: var(--color-surface-soft);
-      border: 1px solid var(--color-hairline-soft);
-      border-radius: var(--rounded-full);
-      padding: 3px 10px;
-      line-height: 1.4;
-      white-space: nowrap;
+      font-size: 12px; font-weight: 500; color: var(--color-ink);
+      background: var(--color-surface-soft); border: 1px solid var(--color-hairline-soft);
+      border-radius: var(--rounded-full); padding: 3px 10px; line-height: 1.4; white-space: nowrap;
     }
-
     .popup-link {
-      display: inline-block;
-      margin-top: 18px;
-      padding: 10px 20px;
-      background: var(--color-primary);
-      color: #ffffff !important;
-      font-family: var(--font-stack);
-      font-size: 13px;
-      font-weight: 600;
-      line-height: 1.29;
-      text-decoration: none !important;
-      border-radius: var(--rounded-full);
+      display: inline-block; margin-top: 18px; padding: 10px 20px;
+      background: var(--color-primary); color: #ffffff !important;
+      font-family: var(--font-stack); font-size: 13px; font-weight: 600; line-height: 1.29;
+      text-decoration: none !important; border-radius: var(--rounded-full);
       transition: background 0.15s ease;
     }
-
     .popup-link:hover { background: var(--color-primary-active); }
 
     .leaflet-control-attribution {
@@ -617,69 +418,256 @@
       color: var(--color-muted-soft) !important;
     }
 
-    /* --- MarkerCluster → Saitama green tint --- */
     .marker-cluster-small       { background-color: rgba(0, 150, 61, 0.20); }
     .marker-cluster-small  div  { background-color: rgba(0, 150, 61, 0.80); }
     .marker-cluster-medium      { background-color: rgba(0, 150, 61, 0.30); }
     .marker-cluster-medium div  { background-color: rgba(0, 122, 49, 0.85); }
     .marker-cluster-large       { background-color: rgba(0, 150, 61, 0.40); }
     .marker-cluster-large  div  { background-color: rgba(0, 122, 49, 0.95); }
-    .marker-cluster div {
-      color: #ffffff;
-      font-family: var(--font-stack);
-      font-weight: 600;
-    }
+    .marker-cluster div { color: #ffffff; font-family: var(--font-stack); font-weight: 600; }
 
-    /* --- Store Pin (category icons) --- */
     .store-pin-wrap { background: transparent !important; border: none !important; }
     .store-pin {
-      width: 40px;
-      height: 40px;
-      border-radius: var(--rounded-full);
-      background: var(--color-primary);
-      border: 2px solid transparent;
+      width: 40px; height: 40px; border-radius: var(--rounded-full);
+      background: var(--color-primary); border: 2px solid transparent;
       box-shadow: 0 2px 8px rgba(0,0,0,0.25);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: #ffffff;
-      transition: transform 0.12s ease, box-shadow 0.12s ease;
+      display: flex; align-items: center; justify-content: center;
+      color: #ffffff; transition: transform 0.12s ease, box-shadow 0.12s ease;
     }
     .store-pin svg { width: 20px; height: 20px; }
     .store-pin:hover {
       transform: translateY(-2px);
-      box-shadow:
-        rgba(0,0,0,0.04) 0 0 0 1px,
-        rgba(0,0,0,0.08) 0 4px 10px 0,
-        rgba(0,0,0,0.14) 0 8px 16px 0;
+      box-shadow: rgba(0,0,0,0.04) 0 0 0 1px, rgba(0,0,0,0.08) 0 4px 10px 0, rgba(0,0,0,0.14) 0 8px 16px 0;
     }
 
-    /* --- Focus Ring --- */
     :focus-visible { outline: 2px solid var(--color-ink); outline-offset: 2px; }
 
-    /* --- Mobile (< 744px) --- */
+    /* ===== Mobile Floating Search Bar ===== */
+    .search-float {
+      display: none;
+      position: absolute;
+      top: 8px;
+      left: 8px;
+      right: 8px;
+      z-index: 500;
+      flex-direction: column;
+      gap: 6px;
+      pointer-events: none;
+    }
+
+    .sf-row1 {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      pointer-events: auto;
+    }
+
+    .sf-search-wrap {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: white;
+      border-radius: var(--rounded-full);
+      padding: 0 14px;
+      height: 46px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.20);
+      border: 1px solid var(--color-hairline);
+    }
+
+    .sf-search-icon { width: 16px; height: 16px; color: var(--color-muted); flex-shrink: 0; }
+
+    .sf-search-input {
+      flex: 1;
+      background: transparent;
+      border: none;
+      outline: none;
+      font-family: var(--font-stack);
+      font-size: 16px;
+      color: var(--color-ink);
+    }
+    .sf-search-input::placeholder { color: var(--color-muted); }
+
+    .sf-chips {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      overflow-x: auto;
+      scrollbar-width: none;
+      pointer-events: auto;
+    }
+    .sf-chips::-webkit-scrollbar { display: none; }
+
+    .sf-chip {
+      background: white;
+      border: 1px solid var(--color-hairline);
+      border-radius: var(--rounded-full);
+      padding: 0 14px;
+      font-family: var(--font-stack);
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--color-ink);
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.14);
+      white-space: nowrap;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      height: 36px;
+      flex-shrink: 0;
+    }
+
+    .sf-chip.active {
+      background: var(--color-ink);
+      border-color: var(--color-ink);
+      color: white;
+    }
+
+    .sf-chip svg { width: 13px; height: 13px; flex-shrink: 0; }
+
+    .sf-area-select {
+      background: white;
+      border: 1px solid var(--color-hairline);
+      border-radius: var(--rounded-full);
+      padding: 0 6px 0 14px;
+      font-family: var(--font-stack);
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--color-ink);
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.14);
+      appearance: none;
+      -webkit-appearance: none;
+      height: 36px;
+      flex-shrink: 0;
+    }
+
+    /* ===== Bottom Sheet ===== */
+    .bs-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.4);
+      z-index: 3000;
+    }
+
+    .bottom-sheet {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: var(--color-canvas);
+      border-radius: 16px 16px 0 0;
+      max-height: 85dvh;
+      z-index: 3001;
+      transform: translateY(100%);
+      transition: transform 0.28s cubic-bezier(0.32, 0.72, 0, 1);
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 -4px 24px rgba(0,0,0,0.14);
+    }
+
+    .bottom-sheet.open { transform: translateY(0); }
+
+    .bs-drag-bar {
+      display: flex;
+      justify-content: center;
+      padding: 10px 0 2px;
+      flex-shrink: 0;
+    }
+
+    .bs-drag-handle {
+      width: 36px;
+      height: 4px;
+      border-radius: 2px;
+      background: var(--color-hairline);
+    }
+
+    .bs-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 6px 16px 12px;
+      border-bottom: 1px solid var(--color-hairline-soft);
+      flex-shrink: 0;
+    }
+
+    .bs-title { font-size: 16px; font-weight: 600; color: var(--color-ink); line-height: 1.25; }
+
+    .bs-close {
+      width: 32px;
+      height: 32px;
+      border: none;
+      background: var(--color-surface-soft);
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .bs-close svg { width: 14px; height: 14px; color: var(--color-ink); }
+
+    .bs-content {
+      overflow-y: auto;
+      flex: 1;
+      -webkit-overflow-scrolling: touch;
+      padding-bottom: max(env(safe-area-inset-bottom, 0px), 16px);
+    }
+
+    .bs-content .cat-item,
+    .bs-content .origin-item { min-height: 52px; padding: 12px 20px; }
+    .bs-content .origin-search { font-size: 16px; padding: 10px 12px; }
+    .bs-content .origin-search-wrap { padding: 12px 16px 8px; }
+    .bs-content .popup-body { padding: 20px 20px 8px; }
+    .bs-content .popup-link { display: block; text-align: center; margin-top: 16px; }
+    .bs-content .popup-service-tags { margin-top: 12px; padding-top: 12px; }
+
+    /* ===== Mobile ===== */
     @media (max-width: 743px) {
-      .top-nav { height: 60px; padding: 0 16px; }
-      .wordmark { font-size: 16px; }
-      .search-section { padding: 8px 12px; }
-      .search-pill {
-        grid-template-columns: 1fr 56px;
-        grid-template-rows: auto auto auto auto;
-        height: auto;
-        border-radius: var(--rounded-md);
+      .top-nav { height: 48px; padding: 0 12px; }
+      .wordmark { font-size: 15px; }
+
+      .search-section { display: none; }
+      .search-float { display: flex; }
+
+      .radius-bar {
+        position: fixed;
+        left: 50%;
+        transform: translateX(-50%);
+        bottom: -80px;
+        width: max-content;
+        max-width: calc(100vw - 32px);
+        z-index: 500;
+        border-radius: var(--rounded-full);
+        box-shadow: 0 2px 12px rgba(0,0,0,0.18);
+        border: 1px solid var(--color-hairline);
+        background: white;
+        padding: 0;
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        max-height: unset;
+        opacity: 0;
+        transition: bottom 0.3s ease, opacity 0.25s ease;
+        scrollbar-width: none;
       }
-      .search-segment {
-        grid-column: 1;
-        border-right: none;
-        border-bottom: 1px solid var(--color-hairline);
-        padding: 10px 16px;
+      .radius-bar::-webkit-scrollbar { display: none; }
+
+      .radius-bar.visible {
+        bottom: 24px;
+        opacity: 1;
+        padding: 6px 14px;
+        max-height: unset;
       }
-      .search-segment:last-of-type { border-bottom: none; }
-      .search-orb {
-        grid-column: 2;
-        grid-row: 1 / span 4;
-        padding: 0 4px 0 0;
-      }
+
+      .radius-bar-origin,
+      .radius-bar-arrow { display: none; }
+
+      .radius-chip { min-height: 28px; padding: 3px 12px; font-size: 12px; }
+    }
+
+    @media (max-width: 380px) {
+      .wordmark { font-size: 13px; letter-spacing: 0; }
     }
   </style>
 </head>
@@ -689,6 +677,7 @@
     <span id="count" class="count-badge">読み込み中...</span>
   </header>
 
+  <!-- PC用検索バー -->
   <section class="search-section" role="search">
     <div class="search-pill">
       <div class="search-segment">
@@ -750,6 +739,7 @@
     </div>
   </section>
 
+  <!-- Radius bar (PC: search-section下, スマホ: fixed floating) -->
   <div class="radius-bar" id="radius-bar" aria-hidden="true">
     <span class="radius-bar-origin" id="radius-bar-origin"></span>
     <span class="radius-bar-arrow">→</span>
@@ -761,28 +751,69 @@
     <button class="radius-chip" data-radius="5000">5km</button>
   </div>
 
-  <div id="map"></div>
+  <!-- 地図ラッパー -->
+  <div class="map-wrap">
+    <!-- スマホ専用フローティング検索バー -->
+    <div class="search-float" id="search-float">
+      <div class="sf-row1">
+        <div class="sf-search-wrap">
+          <svg class="sf-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="22" y2="22"/>
+          </svg>
+          <input id="search-mobile" type="search" class="sf-search-input" placeholder="店舗名で検索...">
+        </div>
+      </div>
+      <div class="sf-chips">
+        <select id="filter-area-mobile" class="sf-area-select">
+          <option value="">全区</option>
+        </select>
+        <button class="sf-chip" id="sf-cat-btn" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="14" y="14" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/></svg>
+          <span id="sf-cat-text">業種</span>
+        </button>
+        <button class="sf-chip" id="sf-origin-btn" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></svg>
+          <span id="sf-origin-text">基準位置</span>
+        </button>
+      </div>
+    </div>
+
+    <div id="map"></div>
+  </div>
+
+  <!-- ボトムシート -->
+  <div id="bs-overlay" class="bs-overlay"></div>
+  <div id="bottom-sheet" class="bottom-sheet" role="dialog" aria-modal="true" aria-label="詳細パネル">
+    <div class="bs-drag-bar"><div class="bs-drag-handle"></div></div>
+    <div class="bs-header">
+      <span class="bs-title" id="bs-title"></span>
+      <button class="bs-close" id="bs-close" type="button" aria-label="閉じる">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+      </button>
+    </div>
+    <div class="bs-content" id="bs-content"></div>
+  </div>
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
   <script>
-    // --- Category colors per bucket ---
     const BUCKET_COLORS = {
-      food:    '#e8531a',  // オレンジ（飲食）
-      drink:   '#9b2335',  // ワインレッド（居酒屋）
-      grocery: '#d97706',  // アンバー（食料品）
-      drug:    '#0891b2',  // シアン（薬局）
-      beauty:  '#db2777',  // ピンク（美容）
-      relax:   '#7c3aed',  // パープル（リラク）
-      medical: '#dc2626',  // レッド（医療）
-      car:     '#1d4ed8',  // ブルー（自動車）
-      leisure: '#0d9488',  // ティール（レジャー）
-      retail:  '#ca8a04',  // ゴールド（専門小売）
-      service: '#475569',  // スレート（サービス）
-      other:   '#6b7280',  // グレー（その他）
+      food:    '#e8531a',
+      drink:   '#9b2335',
+      grocery: '#d97706',
+      drug:    '#0891b2',
+      beauty:  '#db2777',
+      relax:   '#7c3aed',
+      medical: '#dc2626',
+      car:     '#1d4ed8',
+      leisure: '#0d9488',
+      retail:  '#ca8a04',
+      service: '#475569',
+      other:   '#6b7280',
     };
 
-    // --- Category icon data (Lucide MIT) ---
     const ALL_ICON =`<rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="14" y="14" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/>`;
 
     const ICON_PATHS = {
@@ -822,44 +853,72 @@
       return `<svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${paths}</svg>`;
     }
 
-    // --- 基準位置・半径フィルタ状態 ---
-    let origin = null;          // {type:'station'|'current', lat, lng, label}
-    let radiusM = 0;            // 0 = 制限なし
-    let originCircle = null;    // L.circle
+    // --- モバイル判定 ---
+    function isMobile() {
+      return window.matchMedia('(max-width: 743px)').matches;
+    }
+
+    // --- ボトムシート ---
+    function openBottomSheet(title, onMount) {
+      const bs      = document.getElementById('bottom-sheet');
+      const overlay = document.getElementById('bs-overlay');
+      document.getElementById('bs-title').textContent = title;
+      const content = document.getElementById('bs-content');
+      content.innerHTML = '';
+      overlay.style.display = 'block';
+      bs.classList.add('open');
+      if (onMount) onMount(content);
+    }
+
+    function closeBottomSheet() {
+      const bs      = document.getElementById('bottom-sheet');
+      const overlay = document.getElementById('bs-overlay');
+      bs.classList.remove('open');
+      overlay.style.display = 'none';
+      setTimeout(() => {
+        if (!bs.classList.contains('open')) {
+          document.getElementById('bs-content').innerHTML = '';
+        }
+      }, 300);
+    }
+
+    document.getElementById('bs-overlay').addEventListener('click', closeBottomSheet);
+    document.getElementById('bs-close').addEventListener('click', closeBottomSheet);
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeBottomSheet(); });
+
+    // --- 状態 ---
+    let origin = null;
+    let radiusM = 0;
+    let originCircle = null;
     let currentPosMarker = null;
     let stationMarker = null;
     let allStations = [];
-
-    // --- Category custom dropdown ---
     let selectedCategory = '';
+    let selectedArea = '';
 
+    // --- Category dropdown ---
     function buildCategoryDropdown(categories) {
-      const btn = document.getElementById('cat-btn');
+      const btn      = document.getElementById('cat-btn');
       const dropdown = document.getElementById('cat-dropdown');
 
-      function renderDropdown() {
-        dropdown.innerHTML = '';
-        // "全業種" item
+      function renderItems(container) {
+        container.innerHTML = '';
         const allItem = document.createElement('div');
         allItem.className = 'cat-item' + (selectedCategory === '' ? ' active' : '');
         allItem.setAttribute('role', 'option');
-        allItem.innerHTML = `
-          <div class="cat-item-icon">${makeSvg(ALL_ICON, '14px')}</div>
-          <span>全業種</span>`;
+        allItem.innerHTML = `<div class="cat-item-icon">${makeSvg(ALL_ICON, '14px')}</div><span>全業種</span>`;
         allItem.addEventListener('click', () => selectCategory('', '全業種', ALL_ICON));
-        dropdown.appendChild(allItem);
+        container.appendChild(allItem);
 
         categories.forEach(cat => {
           const bucket = CATEGORY_TO_BUCKET[cat] || 'other';
-          const color = BUCKET_COLORS[bucket];
-          const item = document.createElement('div');
+          const color  = BUCKET_COLORS[bucket];
+          const item   = document.createElement('div');
           item.className = 'cat-item' + (selectedCategory === cat ? ' active' : '');
           item.setAttribute('role', 'option');
-          item.innerHTML = `
-            <div class="cat-item-icon" style="background:${color};border-color:${color};">${makeSvg(ICON_PATHS[bucket], '14px')}</div>
-            <span>${cat}</span>`;
+          item.innerHTML = `<div class="cat-item-icon" style="background:${color};border-color:${color};">${makeSvg(ICON_PATHS[bucket], '14px')}</div><span>${cat}</span>`;
           item.addEventListener('click', () => selectCategory(cat, cat, ICON_PATHS[bucket]));
-          dropdown.appendChild(item);
+          container.appendChild(item);
         });
       }
 
@@ -867,12 +926,17 @@
         selectedCategory = value;
         document.getElementById('cat-btn-text').textContent = label;
         document.getElementById('cat-btn-icon').innerHTML = makeSvg(iconPaths, '16px');
+        const sfText = document.getElementById('sf-cat-text');
+        const sfBtn  = document.getElementById('sf-cat-btn');
+        if (sfText) sfText.textContent = value ? label : '業種';
+        if (sfBtn)  sfBtn.classList.toggle('active', value !== '');
         closeDropdown();
+        closeBottomSheet();
         applyFilters();
       }
 
       function openDropdown() {
-        renderDropdown();
+        renderItems(dropdown);
         dropdown.hidden = false;
         btn.setAttribute('aria-expanded', 'true');
       }
@@ -882,16 +946,20 @@
         btn.setAttribute('aria-expanded', 'false');
       }
 
-      btn.addEventListener('click', (e) => {
+      btn.addEventListener('click', e => {
         e.stopPropagation();
         dropdown.hidden ? openDropdown() : closeDropdown();
       });
-
       document.addEventListener('click', () => closeDropdown());
-      dropdown.addEventListener('click', (e) => e.stopPropagation());
+      dropdown.addEventListener('click', e => e.stopPropagation());
+
+      // スマホ用チップ
+      document.getElementById('sf-cat-btn').addEventListener('click', () => {
+        openBottomSheet('業種を選択', container => renderItems(container));
+      });
     }
 
-    // --- 駅ピンアイコン ---
+    // --- 駅ピン ---
     function makeStationMarkerIcon(name) {
       const html = `<div class="station-pin">
         <div class="station-pin-dot">
@@ -906,13 +974,7 @@
         </div>
         <div class="station-pin-label">${name}</div>
       </div>`;
-      return L.divIcon({
-        className: 'station-pin-wrap',
-        html,
-        iconSize:   [80, 70],
-        iconAnchor: [40, 49],
-        popupAnchor:[0, -52]
-      });
+      return L.divIcon({ className: 'station-pin-wrap', html, iconSize: [80, 70], iconAnchor: [40, 49], popupAnchor: [0, -52] });
     }
 
     // --- Origin circle ---
@@ -931,15 +993,20 @@
     // --- Set / clear origin ---
     function setOrigin(o) {
       if (currentPosMarker) { map.removeLayer(currentPosMarker); currentPosMarker = null; }
-      if (stationMarker)    { map.removeLayer(stationMarker);    stationMarker = null; }
+      if (stationMarker)    { map.removeLayer(stationMarker);    stationMarker    = null; }
       origin = o;
+
       const text      = document.getElementById('origin-btn-text');
       const icon      = document.getElementById('origin-btn-icon');
       const radiusBar = document.getElementById('radius-bar');
       const barLabel  = document.getElementById('radius-bar-origin');
+      const sfText    = document.getElementById('sf-origin-text');
+      const sfBtn     = document.getElementById('sf-origin-btn');
 
       if (!o) {
         text.textContent = '基準なし';
+        if (sfText) sfText.textContent = '基準位置';
+        if (sfBtn)  sfBtn.classList.remove('active');
         icon.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></svg>`;
         icon.style.color = 'var(--color-muted)';
         radiusM = 0;
@@ -949,57 +1016,48 @@
         });
       } else {
         text.textContent = o.label;
+        if (sfText) sfText.textContent = o.label.length > 8 ? o.label.slice(0, 8) + '…' : o.label;
+        if (sfBtn)  sfBtn.classList.add('active');
         barLabel.textContent = o.type === 'current' ? '📍 現在位置から' : `🚉 ${o.label}から`;
         if (o.type === 'current') {
           icon.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v3m0 14v3M2 12h3m14 0h3"/></svg>`;
           icon.style.color = '#1d7cbd';
           currentPosMarker = L.marker([o.lat, o.lng], {
             icon: L.divIcon({ className: '', html: '<div class="current-pos-dot"></div>', iconSize: [14,14], iconAnchor: [7,7] }),
-            zIndexOffset: 1000,
-            interactive: false
+            zIndexOffset: 1000, interactive: false
           }).addTo(map);
         } else {
           icon.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></svg>`;
           icon.style.color = 'var(--color-primary)';
           stationMarker = L.marker([o.lat, o.lng], {
             icon: makeStationMarkerIcon(o.label),
-            zIndexOffset: 1000,
-            interactive: false
+            zIndexOffset: 1000, interactive: false
           }).addTo(map);
         }
         radiusBar.classList.add('visible');
         map.flyTo([o.lat, o.lng], 14, { duration: 0.8 });
       }
-      closeOriginDropdown();
+
+      if (isMobile()) closeBottomSheet();
+      else            closeOriginDropdown();
       applyFilters();
     }
 
     // --- Geolocation ---
     function acquireCurrentPosition() {
-      if (!navigator.geolocation) {
-        showCountMsg('位置情報はこのブラウザで使用できません');
-        return;
-      }
+      if (!navigator.geolocation) { showCountMsg('位置情報はこのブラウザで使用できません'); return; }
       document.getElementById('count').textContent = '現在位置を取得中...';
       navigator.geolocation.getCurrentPosition(
-        pos => {
-          setOrigin({
-            type: 'current',
-            lat: pos.coords.latitude,
-            lng: pos.coords.longitude,
-            label: '現在位置'
-          });
-        },
-        () => showCountMsg('位置取得不可（許可をご確認ください）', 3000),
+        pos => setOrigin({ type: 'current', lat: pos.coords.latitude, lng: pos.coords.longitude, label: '現在位置' }),
+        ()  => showCountMsg('位置取得不可（許可をご確認ください）', 3000),
         { enableHighAccuracy: true, timeout: 8000, maximumAge: 60000 }
       );
     }
 
     function showCountMsg(msg, ms) {
-      const el = document.getElementById('count');
-      const prev = el.textContent;
+      const el   = document.getElementById('count');
       el.textContent = msg;
-      if (ms) setTimeout(() => { applyFilters(); }, ms);
+      if (ms) setTimeout(() => applyFilters(), ms);
     }
 
     // --- Origin dropdown ---
@@ -1009,11 +1067,9 @@
       const searchEl = document.getElementById('origin-search');
       const listEl   = document.getElementById('origin-station-list');
 
-      function renderStations(q) {
-        const filtered = q
-          ? stations.filter(s => s.name.includes(q) || s.line.includes(q))
-          : stations;
-        listEl.innerHTML = '';
+      function renderStations(q, targetList) {
+        const filtered = q ? stations.filter(s => s.name.includes(q) || s.line.includes(q)) : stations;
+        targetList.innerHTML = '';
         filtered.forEach(s => {
           const item = document.createElement('div');
           item.className = 'origin-item' + (origin && origin.label === s.name && origin.type === 'station' ? ' active' : '');
@@ -1025,16 +1081,14 @@
               <span style="font-size:14px">${s.name}</span><br>
               <span style="font-size:11px;color:var(--color-muted)">${s.line}</span>
             </span>`;
-          item.addEventListener('click', () => {
-            setOrigin({ type: 'station', lat: s.lat, lng: s.lng, label: s.name });
-          });
-          listEl.appendChild(item);
+          item.addEventListener('click', () => setOrigin({ type: 'station', lat: s.lat, lng: s.lng, label: s.name }));
+          targetList.appendChild(item);
         });
       }
 
       function openOriginDropdown() {
         searchEl.value = '';
-        renderStations('');
+        renderStations('', listEl);
         dropdown.hidden = false;
         btn.setAttribute('aria-expanded', 'true');
         setTimeout(() => searchEl.focus(), 50);
@@ -1050,12 +1104,11 @@
         dropdown.hidden ? openOriginDropdown() : closeOriginDropdown();
       });
 
-      searchEl.addEventListener('input', () => renderStations(searchEl.value.trim()));
+      searchEl.addEventListener('input', () => renderStations(searchEl.value.trim(), listEl));
       searchEl.addEventListener('click', e => e.stopPropagation());
 
       document.getElementById('origin-current-btn').addEventListener('click', () => acquireCurrentPosition());
-      document.getElementById('origin-clear-btn').addEventListener('click', () => setOrigin(null));
-
+      document.getElementById('origin-clear-btn').addEventListener('click',   () => setOrigin(null));
       document.addEventListener('click', () => closeOriginDropdown());
       dropdown.addEventListener('click', e => e.stopPropagation());
 
@@ -1065,17 +1118,49 @@
           document.querySelectorAll('.radius-chip').forEach(c => c.classList.remove('active'));
           chip.classList.add('active');
           closeOriginDropdown();
+          closeBottomSheet();
           applyFilters();
         });
       });
 
-      renderStations('');
+      // スマホ用: 基準位置ボトムシート
+      document.getElementById('sf-origin-btn').addEventListener('click', () => {
+        openBottomSheet('基準位置を選択', container => {
+          container.innerHTML = `
+            <div class="origin-search-wrap">
+              <input type="search" class="origin-search" id="bs-origin-search" placeholder="駅名・路線で検索">
+            </div>
+            <div class="origin-item" id="bs-origin-current">
+              <span class="origin-item-icon current">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v3m0 14v3M2 12h3m14 0h3"/></svg>
+              </span>
+              現在位置を使う
+            </div>
+            <div class="origin-item" id="bs-origin-clear">
+              <span class="origin-item-icon clear">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              </span>
+              基準なし（クリア）
+            </div>
+            <div class="origin-divider"></div>
+            <div class="origin-station-list" id="bs-station-list"></div>`;
+
+          const bsSearch = document.getElementById('bs-origin-search');
+          const bsList   = document.getElementById('bs-station-list');
+          renderStations('', bsList);
+          bsSearch.addEventListener('input', () => renderStations(bsSearch.value.trim(), bsList));
+          document.getElementById('bs-origin-current').addEventListener('click', () => acquireCurrentPosition());
+          document.getElementById('bs-origin-clear').addEventListener('click',   () => setOrigin(null));
+        });
+      });
+
+      renderStations('', listEl);
     }
 
     function makeStorePinIcon(category) {
       const bucket = CATEGORY_TO_BUCKET[category] || 'other';
-      const color = BUCKET_COLORS[bucket];
-      const html = `<div class="store-pin" style="background:${color};border-color:${color};">
+      const color  = BUCKET_COLORS[bucket];
+      const html   = `<div class="store-pin" style="background:${color};border-color:${color};">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${ICON_PATHS[bucket]}</svg>
       </div>`;
       return L.divIcon({ className: 'store-pin-wrap', html, iconSize: [40, 40], iconAnchor: [20, 20], popupAnchor: [0, -22] });
@@ -1115,29 +1200,38 @@
           </div>
           <div class="popup-service-tags">${tags}</div>
           <a class="popup-link" href="${s.url}" target="_blank" rel="noopener">詳細ページ</a>
-        </div>
-      `;
+        </div>`;
     }
 
     function renderMarkers(stores) {
       clusterGroup.clearLayers();
+      const mobile = isMobile();
       stores.forEach(s => {
         if (s.lat == null) return;
         const marker = L.marker([s.lat, s.lng], { icon: makeStorePinIcon(s.category) });
-        marker.bindPopup(buildPopup(s), { maxWidth: 280, minWidth: 220 });
+        if (mobile) {
+          marker.on('click', () => {
+            openBottomSheet(s.name, container => {
+              container.innerHTML = buildPopup(s);
+            });
+            map.panTo([s.lat, s.lng]);
+          });
+        } else {
+          marker.bindPopup(buildPopup(s), { maxWidth: 280, minWidth: 220 });
+        }
         clusterGroup.addLayer(marker);
       });
       document.getElementById('count').textContent = `${stores.filter(s => s.lat != null).length} 件表示`;
     }
 
     function applyFilters() {
-      const q = document.getElementById('search').value.trim().toLowerCase();
-      const area = document.getElementById('filter-area').value;
-      const cat = selectedCategory;
+      const q    = (document.getElementById('search').value || document.getElementById('search-mobile').value || '').trim().toLowerCase();
+      const area = selectedArea;
+      const cat  = selectedCategory;
       const filtered = allStores.filter(s => {
-        if (q && !s.name.toLowerCase().includes(q)) return false;
-        if (area && addressToArea(s.address) !== area) return false;
-        if (cat && s.category !== cat) return false;
+        if (q    && !s.name.toLowerCase().includes(q))           return false;
+        if (area && addressToArea(s.address) !== area)           return false;
+        if (cat  && s.category !== cat)                          return false;
         if (origin && radiusM > 0 && s.lat != null) {
           const d = map.distance([s.lat, s.lng], [origin.lat, origin.lng]);
           if (d > radiusM) return false;
@@ -1152,26 +1246,58 @@
       fetch('stores.json').then(r => r.json()),
       fetch('stations.json').then(r => r.json()).catch(() => [])
     ]).then(([stores, stations]) => {
-        allStores = stores;
-        allStations = stations;
+      allStores  = stores;
+      allStations = stations;
 
-        const areas = [...new Set(stores.map(s => addressToArea(s.address)).filter(Boolean))].sort();
-        const areaEl = document.getElementById('filter-area');
-        areas.forEach(a => { const o = document.createElement('option'); o.value = a; o.textContent = a; areaEl.appendChild(o); });
-
-        const cats = [...new Set(stores.map(s => s.category).filter(Boolean))].sort();
-        buildCategoryDropdown(cats);
-        buildOriginDropdown(stations);
-
-        renderMarkers(stores);
-      })
-      .catch(err => {
-        document.getElementById('count').textContent = 'データ読み込みエラー';
-        console.error(err);
+      const areas  = [...new Set(stores.map(s => addressToArea(s.address)).filter(Boolean))].sort();
+      const areaEl = document.getElementById('filter-area');
+      const areaElM = document.getElementById('filter-area-mobile');
+      areas.forEach(a => {
+        [areaEl, areaElM].forEach(el => {
+          const o = document.createElement('option');
+          o.value = a; o.textContent = a;
+          el.appendChild(o);
+        });
       });
 
+      const cats = [...new Set(stores.map(s => s.category).filter(Boolean))].sort();
+      buildCategoryDropdown(cats);
+      buildOriginDropdown(stations);
+      resizeMobileAreaSelect();
+
+      renderMarkers(stores);
+    }).catch(err => {
+      document.getElementById('count').textContent = 'データ読み込みエラー';
+      console.error(err);
+    });
+
+    // PC用イベント
     document.getElementById('search').addEventListener('input', applyFilters);
-    document.getElementById('filter-area').addEventListener('change', applyFilters);
+    document.getElementById('filter-area').addEventListener('change', e => {
+      selectedArea = e.target.value;
+      document.getElementById('filter-area-mobile').value = e.target.value;
+      applyFilters();
+    });
+
+    // スマホ用イベント
+    document.getElementById('search-mobile').addEventListener('input', applyFilters);
+    document.getElementById('filter-area-mobile').addEventListener('change', e => {
+      selectedArea = e.target.value;
+      document.getElementById('filter-area').value = e.target.value;
+      resizeMobileAreaSelect();
+      applyFilters();
+    });
+
+    function resizeMobileAreaSelect() {
+      const sel = document.getElementById('filter-area-mobile');
+      if (!sel) return;
+      const text = sel.options[sel.selectedIndex]?.text || '';
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      ctx.font = `500 13px ${getComputedStyle(sel).fontFamily}`;
+      const w = ctx.measureText(text).width;
+      sel.style.width = Math.ceil(w) + 28 + 'px';
+    }
   </script>
 </body>
 </html>
