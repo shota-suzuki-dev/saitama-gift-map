@@ -295,6 +295,43 @@
     .origin-divider { height: 1px; background: var(--color-hairline-soft); margin: 2px 0; }
     .origin-station-list { padding-bottom: 4px; }
 
+    .store-suggest {
+      position: absolute;
+      top: calc(100% + 6px);
+      left: -20px;
+      min-width: 300px;
+      background: var(--color-canvas);
+      border: 1px solid var(--color-hairline);
+      border-radius: var(--rounded-md);
+      box-shadow: var(--shadow-card);
+      max-height: 360px;
+      overflow-y: auto;
+      z-index: 2000;
+      padding: 4px 0;
+    }
+
+    .store-suggest-item {
+      display: flex;
+      flex-direction: column;
+      padding: 10px 16px;
+      cursor: pointer;
+      gap: 2px;
+    }
+    .store-suggest-item:hover,
+    .store-suggest-item.active { background: var(--color-surface-soft); }
+    .store-suggest-item-name { font-size: 14px; font-weight: 400; color: var(--color-ink); }
+    .store-suggest-item-addr { font-size: 11px; color: var(--color-muted); }
+
+    .store-suggest--mobile {
+      position: absolute;
+      top: 54px;
+      left: 0;
+      right: 0;
+      min-width: unset;
+      border-radius: var(--rounded-md);
+      box-shadow: 0 4px 20px rgba(0,0,0,0.18);
+    }
+
     .radius-bar {
       background: var(--color-canvas);
       border-bottom: 1px solid var(--color-hairline-soft);
@@ -464,6 +501,7 @@
 
     .sf-search-wrap {
       flex: 1;
+      position: relative;
       display: flex;
       align-items: center;
       gap: 8px;
@@ -682,7 +720,8 @@
     <div class="search-pill">
       <div class="search-segment">
         <label for="search">店舗名</label>
-        <input id="search" type="search" placeholder="店舗名で検索">
+        <input id="search" type="search" placeholder="店舗名で検索" autocomplete="off">
+        <div class="store-suggest" id="store-suggest" hidden role="listbox"></div>
       </div>
       <div class="search-segment">
         <label for="filter-area">区</label>
@@ -760,7 +799,8 @@
           <svg class="sf-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="22" y2="22"/>
           </svg>
-          <input id="search-mobile" type="search" class="sf-search-input" placeholder="店舗名で検索...">
+          <input id="search-mobile" type="search" class="sf-search-input" placeholder="店舗名で検索..." autocomplete="off">
+          <div class="store-suggest store-suggest--mobile" id="store-suggest-mobile" hidden role="listbox"></div>
         </div>
       </div>
       <div class="sf-chips">
@@ -1167,9 +1207,8 @@
     }
 
     const map = L.map('map').setView([35.861, 139.645], 12);
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-      attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors © <a href="https://carto.com/attributions">CARTO</a>',
-      subdomains: 'abcd',
+    L.tileLayer('https://tile.openstreetmap.jp/styles/osm-bright/512/{z}/{x}/{y}.png', {
+      attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
       maxZoom: 19,
     }).addTo(map);
 
@@ -1177,6 +1216,7 @@
     map.addLayer(clusterGroup);
 
     let allStores = [];
+    let markerByStoreIndex = new Map();
 
     function addressToArea(address) {
       const m = address.match(/さいたま市(\S+区)/);
@@ -1205,6 +1245,7 @@
 
     function renderMarkers(stores) {
       clusterGroup.clearLayers();
+      markerByStoreIndex.clear();
       const mobile = isMobile();
       stores.forEach(s => {
         if (s.lat == null) return;
@@ -1220,6 +1261,7 @@
           marker.bindPopup(buildPopup(s), { maxWidth: 280, minWidth: 220 });
         }
         clusterGroup.addLayer(marker);
+        markerByStoreIndex.set(s._idx, marker);
       });
       document.getElementById('count').textContent = `${stores.filter(s => s.lat != null).length} 件表示`;
     }
@@ -1242,10 +1284,140 @@
       updateOriginCircle();
     }
 
+    function escapeHtml(str) {
+      return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+
+    function matchStores(q) {
+      if (!q) return [];
+      const ql = q.toLowerCase();
+      const starts = [], rest = [];
+      allStores.forEach(s => {
+        const nl = s.name.toLowerCase();
+        if (nl.startsWith(ql))    starts.push(s);
+        else if (nl.includes(ql)) rest.push(s);
+      });
+      return [...starts, ...rest].slice(0, 8);
+    }
+
+    function focusStore(store) {
+      const mobile = isMobile();
+      applyFilters();
+      if (store.lat == null) return;
+      const marker = markerByStoreIndex.get(store._idx);
+      if (marker) {
+        clusterGroup.zoomToShowLayer(marker, () => {
+          if (mobile) {
+            openBottomSheet(store.name, c => { c.innerHTML = buildPopup(store); });
+          } else {
+            marker.openPopup();
+          }
+        });
+      } else {
+        // フィルタで除外されている場合: 区・業種・距離をクリアして再フィルタ
+        selectedArea     = '';
+        selectedCategory = '';
+        radiusM          = 0;
+        document.getElementById('filter-area').value        = '';
+        document.getElementById('filter-area-mobile').value = '';
+        document.querySelectorAll('.radius-chip').forEach((c, i) => c.classList.toggle('active', i === 0));
+        applyFilters();
+        setTimeout(() => {
+          const m2 = markerByStoreIndex.get(store._idx);
+          if (m2) {
+            clusterGroup.zoomToShowLayer(m2, () => {
+              if (mobile) {
+                openBottomSheet(store.name, c => { c.innerHTML = buildPopup(store); });
+              } else {
+                m2.openPopup();
+              }
+            });
+          } else {
+            map.flyTo([store.lat, store.lng], 17, { duration: 0.5 });
+          }
+        }, 200);
+      }
+    }
+
+    function setupStoreSuggest(inputEl, listEl) {
+      let activeIdx = -1;
+      let currentItems = [];
+
+      function setActive(idx) {
+        const els = listEl.querySelectorAll('.store-suggest-item');
+        els.forEach(el => el.classList.remove('active'));
+        activeIdx = Math.max(-1, Math.min(idx, currentItems.length - 1));
+        if (activeIdx >= 0) els[activeIdx]?.classList.add('active');
+      }
+
+      function renderSuggest(items) {
+        currentItems = items;
+        activeIdx = -1;
+        listEl.innerHTML = '';
+        if (!items.length) { listEl.hidden = true; return; }
+        items.forEach(s => {
+          const item = document.createElement('div');
+          item.className = 'store-suggest-item';
+          item.setAttribute('role', 'option');
+          item.innerHTML = `<span class="store-suggest-item-name">${escapeHtml(s.name)}</span><span class="store-suggest-item-addr">${escapeHtml(s.address)}</span>`;
+          item.addEventListener('mousedown', e => {
+            e.preventDefault();
+            inputEl.value = s.name;
+            listEl.hidden = true;
+            focusStore(s);
+          });
+          listEl.appendChild(item);
+        });
+        listEl.hidden = false;
+      }
+
+      inputEl.addEventListener('input', () => {
+        applyFilters();
+        renderSuggest(matchStores(inputEl.value.trim()));
+      });
+
+      inputEl.addEventListener('keydown', e => {
+        if (listEl.hidden) return;
+        if (e.key === 'ArrowDown') {
+          e.preventDefault();
+          setActive(activeIdx + 1);
+        } else if (e.key === 'ArrowUp') {
+          e.preventDefault();
+          setActive(activeIdx - 1);
+        } else if (e.key === 'Enter') {
+          if (activeIdx >= 0 && currentItems[activeIdx]) {
+            e.preventDefault();
+            inputEl.value = currentItems[activeIdx].name;
+            listEl.hidden = true;
+            focusStore(currentItems[activeIdx]);
+          }
+        } else if (e.key === 'Escape') {
+          listEl.hidden = true;
+          activeIdx = -1;
+        }
+      });
+
+      inputEl.addEventListener('focus', () => {
+        if (inputEl.value.trim()) renderSuggest(matchStores(inputEl.value.trim()));
+      });
+
+      inputEl.addEventListener('blur', () => {
+        setTimeout(() => { listEl.hidden = true; activeIdx = -1; }, 150);
+      });
+
+      document.addEventListener('click', e => {
+        if (!listEl.contains(e.target) && e.target !== inputEl) {
+          listEl.hidden = true;
+          activeIdx = -1;
+        }
+      });
+    }
+
     Promise.all([
       fetch('stores.json').then(r => r.json()),
       fetch('stations.json').then(r => r.json()).catch(() => [])
     ]).then(([stores, stations]) => {
+      stores.forEach((s, i) => s._idx = i);
       allStores  = stores;
       allStations = stations;
 
@@ -1266,13 +1438,15 @@
       resizeMobileAreaSelect();
 
       renderMarkers(stores);
+
+      setupStoreSuggest(document.getElementById('search'),        document.getElementById('store-suggest'));
+      setupStoreSuggest(document.getElementById('search-mobile'), document.getElementById('store-suggest-mobile'));
     }).catch(err => {
       document.getElementById('count').textContent = 'データ読み込みエラー';
       console.error(err);
     });
 
     // PC用イベント
-    document.getElementById('search').addEventListener('input', applyFilters);
     document.getElementById('filter-area').addEventListener('change', e => {
       selectedArea = e.target.value;
       document.getElementById('filter-area-mobile').value = e.target.value;
@@ -1280,7 +1454,6 @@
     });
 
     // スマホ用イベント
-    document.getElementById('search-mobile').addEventListener('input', applyFilters);
     document.getElementById('filter-area-mobile').addEventListener('change', e => {
       selectedArea = e.target.value;
       document.getElementById('filter-area').value = e.target.value;
